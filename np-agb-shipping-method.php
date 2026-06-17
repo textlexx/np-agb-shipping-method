@@ -52,14 +52,8 @@ class ProductsFiltersAgb {
         add_action('admin_menu', ProductsFiltersAgb::$default_menu);
         
         // Include actions
-		ActionCenter::translateCommonJs_agb();
+		ActionCenter::trsltCommonJs();
 		ActionCenter::create_tables();
-		ActionCenter::startAddLoadImage_wp_scripts();
-        ActionCenter::rename_and_delete_element();
-		ActionCenter::clean_cache_agb();
-		ActionCenter::set_custom_filters_agb();
-		ActionCenter::ajax_products_adaptation_get();
-		ActionCenter::add_in_theme_footer_loader_html();
         //----------------------------
 
 		// Include filters
