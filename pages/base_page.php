@@ -22,7 +22,7 @@ namespace NpAgbShippingMethod;
         </span>
 
         <div class="btn-hide-show">
-            <img src="<?php echo DIR_CURRENT_PLUGIN_PF_AGB; ?>/img/show_hide.png">
+            <img src="<?php echo URL_DIR_CURRENT_PLG_NP_S_MT; ?>/img/show_hide.png">
         </div>
     </div>
 </h2>

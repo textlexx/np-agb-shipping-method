@@ -138,7 +138,7 @@ function create_db_tables_agb(){
 
     $sqlFile = 
     $_SERVER['DOCUMENT_ROOT'].
-    '/wp-content/plugins/'.PLUGIN_DIR_NAME_PF_AGB.
+    '/wp-content/plugins/'.PLUGIN_DIR_NAME_NP_S_MT.
     '/sql_tables/wp_agb_products_filters.sql';
 
     if(!file_exists($sqlFile)) return false;

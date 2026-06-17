@@ -35,7 +35,7 @@ namespace NpAgbShippingMethod;
         <div class="inner-has-loader-text-agb">
             
             <div class="lrdr-img-agb">
-                <img src="<?php echo DIR_CURRENT_PLUGIN_PF_AGB; ?>/img/loader.gif">
+                <img src="<?php echo URL_DIR_CURRENT_PLG_NP_S_MT; ?>/img/loader.gif">
 
                 <div class="btn-close-agb" style="display:none;">
                     <?php echo TranslatorCenter::run(

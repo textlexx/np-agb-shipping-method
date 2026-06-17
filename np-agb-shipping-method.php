@@ -21,10 +21,10 @@ Author URI: http://creation.zt.ua
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 
-define('PLUGIN_DIR_NAME_PF_AGB', 'agb-products-filters');
-define('PLUGIN_URL_DIR_PF_AGB', plugins_url());
-define('DIR_CURRENT_PLUGIN_PF_AGB', PLUGIN_URL_DIR_PF_AGB.'/'.PLUGIN_DIR_NAME_PF_AGB);
-define('PATH_CURRENT_PLUGIN_PF_AGB', $_SERVER['DOCUMENT_ROOT'].'/wp-content/plugins/'.PLUGIN_DIR_NAME_PF_AGB);
+define('PLUGIN_DIR_NAME_NP_S_MT', 'agb-products-filters');
+define('PLUGIN_URL_DIR_NP_S_MT', plugins_url());
+define('URL_DIR_CURRENT_PLG_NP_S_MT', PLUGIN_URL_DIR_NP_S_MT.'/'.PLUGIN_DIR_NAME_NP_S_MT);
+define('PATH_CURRENT_PLG_NP_S_MT', $_SERVER['DOCUMENT_ROOT'].'/wp-content/plugins/'.PLUGIN_DIR_NAME_NP_S_MT);
 
 // Included common classes
 require_once ('requireClasses.php');

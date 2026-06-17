@@ -1242,10 +1242,10 @@ class Instruments{
             }else{
 
                 clearstatcache();
-                if( is_file(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name) ){
+                if( is_file(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name) ){
 
                     clearstatcache();
-                    $results = file_get_contents(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name);
+                    $results = file_get_contents(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name);
                     $results = unserialize($results);
 
                     $amount = count($results);
@@ -1254,10 +1254,10 @@ class Instruments{
                 }
 
                 clearstatcache();
-                if( is_file(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name__ammmm) ){
+                if( is_file(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name__ammmm) ){
 
                     clearstatcache();
-                    $ammmm = (int) trim(file_get_contents(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name__ammmm));
+                    $ammmm = (int) trim(file_get_contents(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name__ammmm));
 
                     $pages_amount = ceil( $ammmm / $limit );
 
@@ -1281,10 +1281,10 @@ class Instruments{
                 $total_my_agb = $pages_amount;
 
                 clearstatcache();
-                if( is_file(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name__pagin) ){
+                if( is_file(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name__pagin) ){
 
                     clearstatcache();
-                    $data['pagin_html'] = file_get_contents(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name__pagin);
+                    $data['pagin_html'] = file_get_contents(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name__pagin);
                 }else{
 
                     wc_set_loop_prop( 'total_pages',  $pages_amount);
@@ -1333,13 +1333,13 @@ class Instruments{
 
         $str_results = serialize($results);
         clearstatcache();
-        file_put_contents(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name, $str_results, LOCK_EX);
+        file_put_contents(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name, $str_results, LOCK_EX);
 
         clearstatcache();
-        file_put_contents(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name__ammmm, $ammmm, LOCK_EX);
+        file_put_contents(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name__ammmm, $ammmm, LOCK_EX);
 
         clearstatcache();
-        file_put_contents(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name__pagin, $pagin_html, LOCK_EX);
+        file_put_contents(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name__pagin, $pagin_html, LOCK_EX);
     }
 
     //-----------------------------------------------------------------------
@@ -1435,9 +1435,9 @@ class Instruments{
         
 
         clearstatcache();
-        if( ! is_dir(PATH_CURRENT_PLUGIN_PF_AGB.'/cache') ) mkdir(PATH_CURRENT_PLUGIN_PF_AGB.'/cache');
+        if( ! is_dir(PATH_CURRENT_PLG_NP_S_MT.'/cache') ) mkdir(PATH_CURRENT_PLG_NP_S_MT.'/cache');
 
-        $time_cash_file_name_agb = PATH_CURRENT_PLUGIN_PF_AGB.'/cache/time';
+        $time_cash_file_name_agb = PATH_CURRENT_PLG_NP_S_MT.'/cache/time';
         $ttime = time();
         clearstatcache();
         if( 
@@ -1452,7 +1452,7 @@ class Instruments{
 
             clearstatcache();
 
-            $data_array = glob(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/*', GLOB_BRACE);
+            $data_array = glob(PATH_CURRENT_PLG_NP_S_MT.'/cache/*', GLOB_BRACE);
             $i = 0;
             foreach($data_array as $e){
                 
@@ -1472,13 +1472,13 @@ class Instruments{
 
         $cash_file_status_agb = 'cash_file_no_exists';
         clearstatcache();
-        if( ! is_file(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name) ){
+        if( ! is_file(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name) ){
 
             $cash_file_status_agb = 'cash_file_no_exists';
-        }elseif( is_file(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name) ){
+        }elseif( is_file(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name) ){
 
             clearstatcache();
-            $cash_data = file_get_contents(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name);
+            $cash_data = file_get_contents(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name);
             $cash_data = unserialize($cash_data);
 
             if( is_array($cash_data) ){
@@ -1487,7 +1487,7 @@ class Instruments{
             }else{
 
                 clearstatcache();
-                unlink(PATH_CURRENT_PLUGIN_PF_AGB.'/cache/'.$filters_cash_file_name);
+                unlink(PATH_CURRENT_PLG_NP_S_MT.'/cache/'.$filters_cash_file_name);
                 $cash_file_status_agb = 'cash_file_no_exists';
             }
         }
