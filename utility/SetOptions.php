@@ -88,8 +88,8 @@ class SetOptions{
 
 		$table = 'wp_agb_products_filters';
 
-		$id = Instruments::genNextId_agb($table);
-		$const_id = Instruments::genNextId_agb($table, 'const_id');
+		$id = Instruments::genNextId($table);
+		$const_id = Instruments::genNextId($table, 'const_id');
 
 		$product_filter_name = '';
 		if(

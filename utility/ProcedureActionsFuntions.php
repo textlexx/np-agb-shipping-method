@@ -7,178 +7,27 @@ function startAddLoadImage_wp_scripts(){
     wp_enqueue_media(); 
 }
 
-function rename_element_agb(){
 
-    $data = array(
-        'status' => 'success',
-        'successes' => array(
-            'message' => TranslatorCenter::run('Success. Filter was renamed.'),
-        ),
-        'errors' => array(
-            'message' => TranslatorCenter::run('Error. Rename was failure.'),
-        ),
-    );
+function create_db_tables_agb(string $tabName){
 
-    if(
-        isset($_POST['filter_const_id']) &&
-        isset($_POST['rename_name']) &&
-        $_POST['filter_const_id'] > 0 &&
-        $_POST['rename_name']
-    ){
-
-        $_POST['rename_name'] = ControlCenter::killWpMagicQuotes($_POST['rename_name']);
-
-        $data['filter_const_id'] = $_POST['filter_const_id'];
-        $data['rename_name'] = $_POST['rename_name'];
-
-        if(!$res = Instruments::update_element_data_agb(
-            $_POST['filter_const_id'], $_POST['rename_name']
-        )){
-
-            $data['status'] = 'error';
-            echo ControlCenter::jsonEncode($data);
-            die();
-        }
-    }else{
-
-        $data['status'] = 'error';
-    }
-
-    echo ControlCenter::jsonEncode($data);
-    die();
-}
-
-function delete_element_agb(){
-
-    $data = array(
-        'status' => 'success',
-        'successes' => array(
-            'delete' => TranslatorCenter::run('Success. Filter was deleted.'),
-        ),
-        'errors' => array(
-            'delete' => TranslatorCenter::run('Error. Delete was failure.'),
-        ),
-    );
-
-    if(isset($_POST['const_id']) && $_POST['const_id'] > 0){
-
-        $data['const_id'] = $_POST['const_id'];
-
-        if(!$res = Instruments::delete_element_data_agb($_POST['const_id'])){
-
-            $data['status'] = 'error';
-            echo ControlCenter::jsonEncode($data);
-            die();
-        }
-    }else{
-
-        $data['status'] = 'error';
-    }
-
-    echo ControlCenter::jsonEncode($data);
-    die();
-}
-
-function clean_cache_agb(){
-
-    $data = array(
-        'status' => 'success',
-        'successes' => array(
-            'delete' => TranslatorCenter::run('Success. Cache was cleaned.'),
-        ),
-        'errors' => array(
-            'delete' => TranslatorCenter::run('Error. Clean was failure.'),
-        ),
-    );
-
-    if(isset($_POST['cache1'])){
-
-        $cache1Dir = $_SERVER['DOCUMENT_ROOT'].'/cache_agb';
-
-        clearstatcache();
-        if(!is_dir($cache1Dir)){
-
-            $data['status'] = 'error';
-            $data['errors']['delete'] = TranslatorCenter::run('Error. Cache dir not exists.');
-            echo ControlCenter::jsonEncode($data);
-            die();
-        }
-
-        $files = glob($cache1Dir.'/*', GLOB_BRACE);
-
-        foreach($files as $val) unlink($val);
-    }
-    elseif(isset($_POST['cache2'])){
-
-        $cache2Dir = $_SERVER['DOCUMENT_ROOT'].'/wp-content/plugins/agb-products-filters/cache';
-
-        clearstatcache();
-        if(!is_dir($cache2Dir)){
-
-            $data['status'] = 'error';
-            $data['errors']['delete'] = TranslatorCenter::run('Error. Cache dir not exists.');
-            echo ControlCenter::jsonEncode($data);
-            die();
-        }
-
-        $files = glob($cache2Dir.'/*', GLOB_BRACE);
-
-        foreach($files as $val) unlink($val);
-    }
-    else{
-
-        $data['status'] = 'error';
-    }
-
-    echo ControlCenter::jsonEncode($data);
-    die();
-}
-
-function create_db_tables_agb(){
+    global $wpdb;
 
     $sqlFile = 
-    $_SERVER['DOCUMENT_ROOT'].
-    '/wp-content/plugins/'.PLUGIN_DIR_NAME_NP_S_MT.
-    '/sql_tables/wp_agb_products_filters.sql';
+    PATH_CURRENT_PLG_NP_S_MT.
+    '/sql_tables/'.$wpdb->prefix.$tabName.'.sql';
 
+    clearstatcache();
     if(!file_exists($sqlFile)) return false;
 
     $sql = file_get_contents($sqlFile);
 
     if(!$sql) return false;
 
-    global $wpdb;
-
     $result = $wpdb->query($sql);
 
     if(!$result) return false;
 
     return true;
-}
-
-
-function get_max_min_products_price_agb(){
-
-    $data = array(
-        'status' => 'success',
-        'errors' => array(
-            'delete' => TranslatorCenter::run('Error. Max min price was failure.'),
-        ),
-    );
-
-    $price = Instruments::get_max_min_products_price();
-
-    if(!property_exists($price, 'max_price')) {
-        
-        $data['status'] = 'error';
-        echo ControlCenter::jsonEncode($data);
-        die();
-    }
-
-    $data['price'] = $price;
-
-    echo ControlCenter::jsonEncode($data);
-    die();
 }
 
 
