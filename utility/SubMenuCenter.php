@@ -15,7 +15,7 @@ class SubMenuCenter{
 
     public static function standartPage(){
         
-        if(!ProductsFiltersAgb::standartAccessMessageForPages()) return false;
+        if(!NPShippingMethod::standartAccessMessageForPages()) return false;
 
         echo TranslatorCenter::run('Change parameter of the function which adding submenus.');
     }

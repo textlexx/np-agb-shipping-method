@@ -16,4 +16,4 @@ require_once ('utility/Shorcodes.php');
 require_once ('utility/SubMenuCenter.php');
 require_once ('utility/FileEditor.php');
 require_once ('utility/Files_include_functions.php');
-require_once ('utility/ProductsFunctions.php');
+require_once ('utility/ExtFunctions.php');

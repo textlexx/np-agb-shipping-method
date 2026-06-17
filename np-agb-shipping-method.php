@@ -10,12 +10,12 @@ define('LANG_THEME_KEY_AGB', 'agb-33da');
 //-----------------------------------------------------------------
 
 /*
-Plugin Name: Products filters AGB System
-Plugin URI: http://creation.zt.ua
-Description: Products filters system for filtering products on site shop page of woocommerce.
+Plugin Name: Nova Poshta AGB Shipping Method
+Plugin URI: https://33da.top
+Description: Nova Poshta AGB Shipping Method
 Version: 1.0
 Author: Aleksandr Borisovich Gaidash
-Author URI: http://creation.zt.ua
+Author URI: https://33da.top
 */
 
 //-----------------------------------------------------------------
@@ -32,11 +32,7 @@ require_once ('requireClasses.php');
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 
-//----------------------
-set_filters_in_session_agb();
-//----------------------
-
-class ProductsFiltersAgb {
+class NPShippingMethod {
 
     // Path relatively this plugin dir
 	public static $base_page = 'pages/pages_selector.php';
@@ -49,7 +45,7 @@ class ProductsFiltersAgb {
 	public static function run(){
 		
 		// Add plugin in admin panel menu
-        add_action('admin_menu', ProductsFiltersAgb::$default_menu);
+        add_action('admin_menu', NPShippingMethod::$default_menu);
         
         // Include actions
 		ActionCenter::trsltCommonJs();
@@ -57,7 +53,7 @@ class ProductsFiltersAgb {
         //----------------------------
 
 		// Include filters
-		FiltersFunctions::list_all_catalog_orderby();
+		//FiltersFunctions::example();
 		//----------------------------
 
 		// admin_notices - action add opportunity show errors and successes messages
@@ -70,7 +66,8 @@ class ProductsFiltersAgb {
 				return false;
 			}
 
-			SetOptions::add_new_products_filter_agb();
+			// After access allowed, if need this access check
+			//SetOptions::example();
 			//----------------------------
 		});
 	}
@@ -85,7 +82,7 @@ class ProductsFiltersAgb {
 			'Products filters AGB', 
 			'manage_options', // user capability to plugin in menu 
 			'products_filters_plugin_base_page_agb',
-			ProductsFiltersAgb::$default_page
+			NPShippingMethod::$default_page
 		);
 
 		add_menu_page(
@@ -93,7 +90,7 @@ class ProductsFiltersAgb {
 			TranslatorCenter::run('Clean Cache AGB'), 
 			'manage_options', // user capability to plugin in menu 
 			'clean_cache_products_filters_plugin_base_page_agb',
-			ProductsFiltersAgb::$default_page
+			NPShippingMethod::$default_page
 		);
 	}
 	
@@ -124,9 +121,9 @@ class ProductsFiltersAgb {
 	// Require separate plugin page
 	public static function show_page(){
 		
-		if(!ProductsFiltersAgb::standartAccessMessageForPages()) return false;
+		if(!NPShippingMethod::standartAccessMessageForPages()) return false;
 		
-		require_once (ProductsFiltersAgb::$base_page);
+		require_once (NPShippingMethod::$base_page);
 	}
 	
 	//-----------------------------------------------------------------------
@@ -155,7 +152,7 @@ class ProductsFiltersAgb {
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 
-ProductsFiltersAgb::run();
+NPShippingMethod::run();
 
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------

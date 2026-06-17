@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `wp_agb_products_filters` (
+CREATE TABLE IF NOT EXISTS `wp_for_example` (
   `id` BIGINT(20) UNSIGNED NOT NULL,
   `const_id` BIGINT(20) UNSIGNED NOT NULL,
   `filter_category_id` INT(11) DEFAULT 0,
