@@ -1,0 +1,245 @@
+<script>
+jQuery(document).ready(function(){
+
+    // agb code start
+    // Vuzov nyzhen tam gde idet podgryzka tovarov y filtre tovarov
+    //fast_buy_refresh_action_agb();
+    // agb code end
+});
+
+
+function fast_buy_refresh_action_agb(){
+
+    // First delete action for no duplicate
+    jQuery(".buy-now-btn-agb").unbind('click');
+
+    jQuery(".buy-now-btn-agb").click(function(e){
+
+        var 
+        _target = jQuery(e.target),
+        _product = _target.parents('li.product'),
+        _data = {},
+        _attributes = '',
+        _attrsData = '',
+        trFbuy = window.translate_for_js_fltr_plugin, 
+        error = false,
+        productType = _target.attr('agb_product_type');
+
+        if(_target.attr('agb_available') !== 'available') return false;
+
+        _attributes = _product.find(
+            '.sizes-of-product-and-other-agb > ul'
+        );
+
+        _attributes.each(function(key, elem){
+
+            var
+            jElem = jQuery(elem),
+            currentAttrSlug = jElem.attr('product_attr_slug'),
+            currAttrSelected = jElem.find('li.active').attr('attr_slug_name');
+            
+            if(currentAttrSlug){
+
+                if(currAttrSelected){
+
+                    _attrsData += '"'+currentAttrSlug+'":"'+currAttrSelected+'",';
+                }else{
+
+                    closeErrorWindow_plugin(trFbuy.fast_buy_no_attr);
+                    error = true;
+                    return false;
+                }
+            }else{
+
+                closeErrorWindow_plugin(trFbuy.fast_buy_no_attr);
+                error = true;
+                return false;
+            }
+
+            error = false;
+            //alert(jElem.attr('product_attr_slug'));
+        });
+
+        if(error) return false;
+
+        //---------------------------
+        if(!rescanAttrsAgb_plugin(_product)) return false;
+        //---------------------------
+
+        _attrsData = '{'+_attrsData+'}';
+
+
+        _data['name'] = _product.find('.woocommerce-loop-product__title').text();
+        //_data['articul'] = _target.attr('agb_product_sku');
+        _data['agb_product_id'] = _target.attr('agb_product_id');
+        _data['articul'] = _data['agb_product_id'];
+        _data['attrs_data'] = _attrsData;
+
+        _data['price'] = (_product.find('.price del').length === 0) ? 
+        _product.find('.price bdi').text() : 
+        _product.find('.price ins bdi').text();
+
+        _data['quantity'] = getProductAmountAgb_plugin(_product);
+        _data['href'] = _product.find('a.woocommerce-LoopProduct-link').attr('href');
+
+        jQuery('#fastBuyWindow').find('input#fast_buy_name').val(_data['name']);
+        jQuery('#fastBuyWindow').find('input#fast_buy_articul').val(_data['agb_product_id']);
+        jQuery('#fastBuyWindow').find('input#fast_buy_agb_product_id').val(_data['agb_product_id']);
+        jQuery('#fastBuyWindow').find('input#fast_buy_attrs_data').val(_data['attrs_data']);
+        jQuery('#fastBuyWindow').find('input#fast_buy_price').val(_data['price']);
+        jQuery('#fastBuyWindow').find('input#fast_buy_quantity').val(_data['quantity']);
+        jQuery('#fastBuyWindow').find('input#fast_buy_href').val(_data['href']);
+
+
+        // Open fast buy window 
+        jQuery('#fastBuyWindow').fadeIn(200);
+
+
+        jQuery('#fastBuyWindow').find(".btn-fast-buy").unbind('mousedown');
+        jQuery('#fastBuyWindow').find(".btn-fast-buy").mousedown(function(e){
+
+            // Tolko levaya knopka mushi
+            if(e.which != 1) return false;
+
+            agbSiteLoaderShow_plugin();
+
+            var
+            fastBuyData = '',
+            fastBuyWindow = jQuery("#fastBuyWindow"),
+            fieldName = fastBuyWindow.find("#fast_buy_user_name").val(),
+            fieldTel = fastBuyWindow.find("#fast_buy_phone").val(),
+            fieldMail = fastBuyWindow.find("#fast_buy_mail").val(),
+            fast_buy_name = fastBuyWindow.find('input#fast_buy_name').val(),
+            fast_buy_articul = fastBuyWindow.find('input#fast_buy_articul').val(),
+            fast_buy_agb_product_id = fastBuyWindow.find('input#fast_buy_agb_product_id').val(),
+            fast_buy_attrs_data = fastBuyWindow.find('input#fast_buy_attrs_data').val(),
+            fast_buy_price = fastBuyWindow.find('input#fast_buy_price').val(),
+            fast_buy_quantity = fastBuyWindow.find('input#fast_buy_quantity').val(),
+            fast_buy_href = fastBuyWindow.find('input#fast_buy_href').val(),
+            trFbuy = window.translate_for_js_fltr_plugin,
+            lang_param = '';
+
+            lang_param = get_lang_of_site_for_filter();
+            lang_param = (lang_param) ? '?lang='+lang_param : '';
+
+            // For simple product no need attrs
+            if(productType == 'simple') fast_buy_attrs_data = 'simple';
+
+            fast_buy_href = encodeURIComponent(fast_buy_href);
+
+            if(
+                !fast_buy_name ||
+                !fast_buy_articul ||
+                !fast_buy_agb_product_id ||
+                !fast_buy_attrs_data ||
+                !fast_buy_price ||
+                !fast_buy_quantity ||
+                !fast_buy_href 
+            ) {
+
+                jQuery('#fastBuyWindow').css('display', 'none');
+                closeErrorWindow_plugin(trFbuy.fast_buy_fill_params);
+                agbSiteLoaderHide_plugin();
+                return false;
+            }
+
+            // Fields not empty must be
+            if(
+                fieldName.length > 0 && 
+                fieldTel.length > 2 
+            ){
+
+                var
+                price = 0,
+                productData = {};
+
+                price = fast_buy_price.replace(/[^0-9]+\./i, "");
+                price = price.replace(/\.[^0-9]+/i, "");
+                price = price.replace(/[^0-9]+,/i, "");
+                price = price.replace(/,[^0-9]+/i, "");
+                price = price.replace(/,/i, "");
+                price = Number(price);
+
+                productData = {
+                    'item_id' : fast_buy_agb_product_id,
+                    'item_name' : fast_buy_name,
+                    'currency' : 'UAH',
+                    'price' : price,
+                };
+
+                fastBuyData = {
+                    'action' : 'callBackOneClickBuy',
+                    'uname' : fieldName,
+                    'phone' : fieldTel,
+                    'mail' : fieldMail,
+                    'articul' : fast_buy_articul,
+                    'pname' : fast_buy_name,
+                    'price' : price,
+                    'product_id' : fast_buy_agb_product_id,
+                    'attrs_data' : fast_buy_attrs_data,
+                    'quantity' : fast_buy_quantity,
+                    'href' : fast_buy_href,
+                };
+
+                // Google analytics add to cart event
+                gtag("event", "add_to_cart", {
+                    'event_name' : 'add_to_cart',
+                    "currency": "UAH", 
+                    "value": price, 
+                    "items": new Array(productData),
+                });
+                //------------------------
+
+                gtag('event', 'purchase', {
+                    'transaction_id' : Date.now(),
+                    'currency': 'UAH', 
+                    'value': price, 
+                    'items': new Array(productData),
+                });
+                //------------------------
+
+                jQuery.ajax({
+                    type: "POST",
+                    url: "/wp-admin/admin-ajax.php"+lang_param,
+                    data: fastBuyData,
+                    dataType: "json",
+                    success: function (data) {
+
+                        if (data.status == "success") {
+
+                            openSuccessWindow_plugin(window.translate_for_js_fltr_plugin.success_fast_buy);
+                            jQuery('#fastBuyWindow').css('display', 'none');
+                        } else {
+                            
+                            openErrorWindow_plugin(
+                                data.errors.name + data.errors.mail + 
+                                data.errors.tel + data.errors.articul + 
+                                data.errors.pname + data.errors.price + 
+                                data.errors.product_id + data.errors.quantity + 
+                                data.errors.href + data.errors.attrs +
+                                data.errors.mail_send + data.errors.bot
+                            );
+                            
+                            //alert("error");
+                        }
+
+                        agbSiteLoaderHide_plugin();
+                    },
+                    error: function( jqXHR, textStatus, errorThrown ){
+                        
+                        openErrorWindow_plugin(errorThrown);
+                        agbSiteLoaderHide_plugin();
+                        //alert(errorThrown);
+                    }
+                });
+            }else{
+
+                openErrorWindow_plugin(trFbuy.fast_buy_fill_phone_mail);
+                agbSiteLoaderHide_plugin();
+                return false;
+            }
+        });
+    });
+}
+
+</script>

@@ -1,0 +1,56 @@
+<script>
+    jQuery(document).ready(function(){
+
+        var
+        elem = jQuery('.main-form-field-type-add'),
+        elem_2 = jQuery('.form-add-values-for-fields'),
+        elem_3 = jQuery('.form-add-group');
+
+        elem.css('display', 'none');
+        elem_2.css('display', 'none');
+        elem_3.css('display', 'none');
+        //-----------------------------
+
+        jQuery('.show-field-type-add-form').click(function(){
+
+            var
+            elem = jQuery('.main-form-field-type-add');
+
+            if(elem.css('display') == 'none'){
+
+                elem.slideDown(200);
+            }else{
+
+                elem.slideUp(200);
+            }
+        });
+
+        jQuery('.show-field-values-add-form').click(function(){
+
+            var
+            elem = jQuery('.form-add-values-for-fields');
+
+            if(elem.css('display') == 'none'){
+
+                elem.slideDown(200);
+            }else{
+
+                elem.slideUp(200);
+            }
+        });
+
+        jQuery('.show-groups-add-form').click(function(){
+
+            var
+            elem = jQuery('.form-add-group');
+
+            if(elem.css('display') == 'none'){
+
+                elem.slideDown(200);
+            }else{
+
+                elem.slideUp(200);
+            }
+        });
+    });
+</script>

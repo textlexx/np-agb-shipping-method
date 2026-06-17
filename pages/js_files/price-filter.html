@@ -1,0 +1,636 @@
+<script>
+    jQuery(document).ready(function(){
+
+        var 
+        minBlock = jQuery('.filter-line-block-agb .min-element-agb'),
+        maxBlock = jQuery('.filter-line-block-agb .max-element-agb'),
+        min_price_block = jQuery('.price-part-agb .first-price'),
+        max_price_block = jQuery('.price-part-agb .second-price'),
+        min_price_old_value = Number(min_price_block.attr('old_price_min')),
+        max_price_old_value = Number(max_price_block.attr('old_price_max')),
+        min_price_value = Number(min_price_block.text()),
+        max_price_value = Number(max_price_block.text()),
+        raznica = max_price_old_value - min_price_old_value,
+        price_na_odin_procent = raznica / 100;
+        //------------------------------------------
+
+        window.min_price_old_value = min_price_old_value;
+        window.max_price_old_value = max_price_old_value;
+
+        set_saved_filter_price(
+            min_price_value, 
+            max_price_value, 
+            min_price_old_value,
+            max_price_old_value,
+            minBlock,
+            maxBlock,
+            min_price_block,
+            max_price_block,
+            price_na_odin_procent
+        );
+        //------------------------------------------
+
+        jQuery('.btn-part-agb .fltr-btn-agb-2.clean-price').click(function(){
+
+            var 
+            $dataAjax = '',
+            category_id = get_category_id_agb(),
+            get_min_price = 0,
+            get_max_price = 0,
+            dataH = history.state,
+            pathname = location.pathname;
+
+            if(pathname){
+
+                pathname = pathname.replace(/\/page\/[0-9]+/i, '');
+                pathname = pathname.replace(/\/$/i, '');
+
+                history.pushState(
+                    dataH, 'title', 
+                    location.protocol+'//'+
+                    location.hostname+
+                    pathname+
+                    location.search+
+                    location.hash
+                );
+            }
+
+            dataAjax = 
+            'action=ajax_products_adaptation_get'+
+            '&clean_price_agb=1'+
+            '&category_id_agb='+category_id+
+            '&min_price_agb='+get_min_price+
+            '&max_price_agb='+get_max_price+
+            '&page_num_agb=0'+
+            '&request_uri='+location.pathname+
+            '&query_string='+encodeURIComponent(location.search)+
+            '&hash_string='+location.hash;
+
+            //loaderShowIfProgress();
+            agbSiteLoaderShow_plugin();
+
+            // Stop load if load in progress
+            window.load_in_progress_block_new_load = true;
+            //-------------------------------
+
+            jQuery.ajax({
+                type: "POST",
+                url: "/wp-admin/admin-ajax.php",
+                data: dataAjax,
+                dataType: "json",
+                success: function (data) {
+
+                    var
+                    parent_for_ul = jQuery('.site-main.sidebar-left'),
+                    products_ul = jQuery('.site-main.sidebar-left ul.products'),
+                    blockOfProductsForPaginSet = jQuery('.product-category-item-layout1.site-main.sidebar-left'),
+                    howMutchTovars = jQuery('.site-main.sidebar-left .col-md-6.col-6.agb-first-elem');
+
+                    if (data.status == "success") {
+
+                        var
+                        html = one_product_html_generate_agb(data.products, data.user_login_status);
+
+                        // For additional loading js
+                        window.count_page_number_agb = 0;
+                        //-------------------------------
+                        // Allow load
+                        window.load_in_progress_block_new_load = false;
+                        //-------------------------------
+                        // Allow load
+                        window.stop_load_forever_if_products_are_over = false;
+                        //-------------------------------
+
+                        jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                        set_actions_on_addition_load_btn();
+                        //products_ul.append(html);
+                        products_ul.html(html);
+
+                        scroll_top_filter_plugin_agb();
+                        //-----------------------------
+                        
+                        fast_add_to_cart_and_attrs_marks_actions_refresh();
+                        productAmountChangeFastBuy_plugin();
+                        // Refresh fast buy btn action
+                        fast_buy_refresh_action_agb();
+                        wish_list_btn_action_refresh();
+
+                        agb33da_fast_view_btn_product_popup_plugin();
+
+                        //---------------------
+                        price_elem_reset_agb();
+                        //---------------------
+
+                        // After deactivated filter update amount of all active filter
+                        amount_change_all_active_left_block_filters(data.common_amount_no_limit);
+                        //---------------------
+
+                        // Pagination
+                        //---------------------------------------------
+                        blockOfProductsForPaginSet.find('.woocommerce-pagination').remove();
+                        blockOfProductsForPaginSet.append(data.pagin_html);
+                        //---------------------------------------------
+
+                        // Results count
+                        //---------------------------------------------
+                        howMutchTovars.find('.header-title-mobile-agb').remove();
+                        howMutchTovars.find('.woocommerce-result-count').remove();
+                        howMutchTovars.prepend(data.poln_kolichestvo);
+                        //---------------------------------------------
+
+                        agbSiteLoaderHide_plugin();
+
+                        //loaderHideIfProgress();
+                        //loaderImageHide();
+                        //successDivTextChange(data.successes.message);
+                        //successDivShow();
+                        //btnCloseShow();
+                        //loaderShowIfProgress();
+                    } else {
+
+                        // Allow load
+                        window.load_in_progress_block_new_load = false;
+                        //-------------------------------
+                        
+                        jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                        products_ul.before('<p class="woocommerce-info">'+data.errors.no_results+'</p>');
+                        products_ul.html('');
+                        set_actions_on_addition_load_btn();
+                        agbSiteLoaderHide_plugin();
+
+                        loaderHideIfProgress();
+                        loaderImageHide();
+                        errorDivTextChange(data.errors.message);
+                        errorDivShow();
+                        btnCloseShow();
+                        loaderShowIfProgress();
+                        
+                        //alert("error");
+                    }
+                },
+                error: function( jqXHR, textStatus, errorThrown ){
+
+                    // Allow load
+                    window.load_in_progress_block_new_load = false;
+                    //-------------------------------
+
+                    var
+                    parent_for_ul = jQuery('.site-main.sidebar-left');
+
+                    parent_for_ul.html('<p class="woocommerce-info">An error has occurred.</p>');
+
+                    agbSiteLoaderHide_plugin();
+                    
+                    loaderHideIfProgress();
+                    loaderImageHide();
+                    errorDivTextChange(errorThrown);
+                    errorDivShow();
+                    btnCloseShow();
+                    loaderShowIfProgress();
+                    
+                    //alert(errorThrown);
+                }
+            });
+        });
+
+        // Start price send to php
+        jQuery('.addition-btn-filter-agb .btn-part-agb .fltr-btn-agb-2.apply-filter').click(function(){
+
+            var 
+            $dataAjax = '',
+            category_id = get_category_id_agb(),
+            get_min_price = get_min_price_agb(),
+            get_max_price = get_max_price_agb(),
+            dataH = history.state,
+            pathname = location.pathname;
+
+            if(pathname){
+
+                pathname = pathname.replace(/\/page\/[0-9]+/i, '');
+                pathname = pathname.replace(/\/$/i, '');
+
+                history.pushState(
+                    dataH, 'title', 
+                    location.protocol+'//'+
+                    location.hostname+
+                    pathname+
+                    location.search+
+                    location.hash
+                );
+            }
+
+            dataAjax = 
+            'action=ajax_products_adaptation_get'+
+            '&all_filters_apply=1'+
+            '&category_id_agb='+category_id+
+            '&min_price_agb='+get_min_price+
+            '&max_price_agb='+get_max_price+
+            '&page_num_agb=0'+
+            '&request_uri='+location.pathname+
+            '&query_string='+encodeURIComponent(location.search)+
+            '&hash_string='+location.hash;
+
+            //loaderShowIfProgress();
+            agbSiteLoaderShow_plugin();
+
+            // Stop load if load in progress
+            window.load_in_progress_block_new_load = true;
+            //-------------------------------
+
+            jQuery.ajax({
+                type: "POST",
+                url: "/wp-admin/admin-ajax.php",
+                data: dataAjax,
+                dataType: "json",
+                success: function (data) {
+
+                    var
+                    parent_for_ul = jQuery('.site-main.sidebar-left'),
+                    products_ul = jQuery('.site-main.sidebar-left ul.products'),
+                    blockWithCat = jQuery('#secondary'),
+                    blockOfProductsForPaginSet = jQuery('.product-category-item-layout1.site-main.sidebar-left'),
+                    howMutchTovars = jQuery('.site-main.sidebar-left .col-md-6.col-6.agb-first-elem');
+
+                    if (data.status == "success") {
+
+                        var
+                        html = one_product_html_generate_agb(data.products, data.user_login_status);
+
+                        // For additional loading js
+                        window.count_page_number_agb = 0;
+                        //-------------------------------
+                        // Allow load
+                        window.load_in_progress_block_new_load = false;
+                        //-------------------------------
+                        // Allow load
+                        window.stop_load_forever_if_products_are_over = false;
+                        //-------------------------------
+
+                        //products_ul.append(html);
+                        jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                        set_actions_on_addition_load_btn();
+                        products_ul.html(html);
+
+                        scroll_top_filter_plugin_agb();
+                        //-----------------------------
+                        
+                        fast_add_to_cart_and_attrs_marks_actions_refresh();
+                        productAmountChangeFastBuy_plugin();
+                        // Refresh fast buy btn action
+                        fast_buy_refresh_action_agb();
+                        wish_list_btn_action_refresh();
+
+                        agb33da_fast_view_btn_product_popup_plugin();
+
+                        // After deactivated filter update amount of all active filter
+                        amount_change_all_active_left_block_filters(data.common_amount_no_limit);
+                        //---------------------
+
+                        // Pagination
+                        //---------------------------------------------
+                        blockOfProductsForPaginSet.find('.woocommerce-pagination').remove();
+                        blockOfProductsForPaginSet.append(data.pagin_html);
+                        //---------------------------------------------
+
+                        // Results count
+                        //---------------------------------------------
+                        howMutchTovars.find('.header-title-mobile-agb').remove();
+                        howMutchTovars.find('.woocommerce-result-count').remove();
+                        howMutchTovars.prepend(data.poln_kolichestvo);
+                        //---------------------------------------------
+
+                        agbSiteLoaderHide_plugin();
+
+                        //loaderHideIfProgress();
+                        //loaderImageHide();
+                        //successDivTextChange(data.successes.message);
+                        //successDivShow();
+                        //btnCloseShow();
+                        //loaderShowIfProgress();
+                    } else {
+
+                        // Allow load
+                        window.load_in_progress_block_new_load = false;
+                        //-------------------------------
+                        
+                        jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                        products_ul.before('<p class="woocommerce-info">'+data.errors.no_results+'</p>');
+                        products_ul.html('');
+                        set_actions_on_addition_load_btn();
+                        agbSiteLoaderHide_plugin();
+
+                        loaderHideIfProgress();
+                        loaderImageHide();
+                        errorDivTextChange(data.errors.message);
+                        errorDivShow();
+                        btnCloseShow();
+                        loaderShowIfProgress();
+                        
+                        //alert("error");
+                    }
+                    
+                    // START. ETOT BLOCK KODA TAKZHE NAHODITSA V TEME
+                    if(jQuery( window ).width() < 769){
+
+                        blockWithCat.animate({
+                            width: 0,
+                        }, 200, "linear", function() {
+                            window.rememberStateAgb = 'hide';
+                        });
+                    }
+                    // END. ETOT BLOCK KODA TAKZHE NAHODITSA V TEME
+
+                    jQuery(document).scrollTop();
+                },
+                error: function( jqXHR, textStatus, errorThrown ){
+
+                    // Allow load
+                    window.load_in_progress_block_new_load = false;
+                    //-------------------------------
+
+                    var
+                    parent_for_ul = jQuery('.site-main.sidebar-left');
+
+                    parent_for_ul.html('<p class="woocommerce-info">An error has occurred.</p>');
+
+                    agbSiteLoaderHide_plugin();
+                    
+                    loaderHideIfProgress();
+                    loaderImageHide();
+                    errorDivTextChange(errorThrown);
+                    errorDivShow();
+                    btnCloseShow();
+                    loaderShowIfProgress();
+                    
+                    //alert(errorThrown);
+                }
+            });
+        });
+
+
+        jQuery( document ).on( "click", ".filter-line-block-agb", function(e) {
+
+            var 
+            jThis = jQuery(this);
+            x = e.pageX,
+            y = e.pageY, 
+            elemWidth = Number(jThis.width()),
+            onePercentValue = 100 / elemWidth,
+            mousePlaceInPercent = (x - this.offsetLeft) * onePercentValue,
+            min_BlockMusePlaceInPercent = 0,
+            max_BlockMusePlaceInPercent = 0,
+            distanceToNewPlaceOf_Min_Block = 0,
+            distanceToNewPlaceOf_Max_Block = 0;
+
+            
+            min_BlockMusePlaceInPercent = parseInt(minBlock.css('left')) * onePercentValue;
+            max_BlockMusePlaceInPercent = parseInt(maxBlock.css('left')) * onePercentValue;
+            distanceToNewPlaceOf_Min_Block = mousePlaceInPercent - min_BlockMusePlaceInPercent;
+            distanceToNewPlaceOf_Max_Block = max_BlockMusePlaceInPercent - mousePlaceInPercent;
+            if(
+                mousePlaceInPercent >= 0 && 
+                mousePlaceInPercent < (max_BlockMusePlaceInPercent) && 
+                // Esli k min bloky blizhe
+                distanceToNewPlaceOf_Min_Block < distanceToNewPlaceOf_Max_Block
+            ){
+
+                minBlock.css('left', mousePlaceInPercent+'%');
+                min_price_block.text(
+                    Math.ceil(min_price_old_value + mousePlaceInPercent * price_na_odin_procent)
+                );
+            }else if(mousePlaceInPercent > (min_BlockMusePlaceInPercent)){
+
+                maxBlock.css('left', mousePlaceInPercent+'%');
+                max_price_block.text(
+                    Math.ceil(min_price_old_value + mousePlaceInPercent * price_na_odin_procent)
+                );
+            }
+
+            if(mousePlaceInPercent < 0){
+
+                minBlock.css('left', 0+'%');
+                min_price_block.text(
+                    min_price_old_value
+                );
+            }
+
+            if(mousePlaceInPercent > 100){
+
+                maxBlock.css('left', 100+'%');
+                max_price_block.text(
+                    max_price_old_value
+                );
+            }
+
+            //console.log(`${mousePlaceInPercent+'%'}`);
+        });
+
+
+
+        jQuery( document ).on( "mouseup", "body", function(e){
+
+            window.STOP_FILTER_PRICE_MOVE_AGB = true;
+            jQuery( document ).off( "mousemove", ".filter-line-block-agb");
+        });
+
+        jQuery( document ).on( "mouseleave", ".filter-line-block-agb", function(e){
+
+            window.STOP_FILTER_PRICE_MOVE_AGB = true;
+            jQuery( document ).off( "mousemove", ".filter-line-block-agb");
+        });
+
+
+        jQuery( document ).on( "mousedown", ".filter-line-block-agb", function(e) {
+
+            window.STOP_FILTER_PRICE_MOVE_AGB = false;
+
+            jQuery( document ).on( "mousemove", ".filter-line-block-agb", function(e){
+
+                if(window.STOP_FILTER_PRICE_MOVE_AGB) return false;
+
+                var 
+                jThis = jQuery(this);
+                x = e.pageX,
+                y = e.pageY, 
+                elemWidth = Number(jThis.width()),
+                onePercentValue = 100 / elemWidth,
+                mousePlaceInPercent = (x - this.offsetLeft) * onePercentValue,
+                min_BlockMusePlaceInPercent = 0,
+                max_BlockMusePlaceInPercent = 0,
+                distanceToNewPlaceOf_Min_Block = 0,
+                distanceToNewPlaceOf_Max_Block = 0;
+
+                
+                min_BlockMusePlaceInPercent = parseInt(minBlock.css('left')) * onePercentValue;
+                max_BlockMusePlaceInPercent = parseInt(maxBlock.css('left')) * onePercentValue;
+                distanceToNewPlaceOf_Min_Block = mousePlaceInPercent - min_BlockMusePlaceInPercent;
+                distanceToNewPlaceOf_Max_Block = max_BlockMusePlaceInPercent - mousePlaceInPercent;
+                if(
+                    mousePlaceInPercent >= 0 && 
+                    mousePlaceInPercent < (max_BlockMusePlaceInPercent) && 
+                    // Esli k min bloky blizhe
+                    distanceToNewPlaceOf_Min_Block < distanceToNewPlaceOf_Max_Block
+                ){
+
+                    minBlock.css('left', mousePlaceInPercent+'%');
+                    min_price_block.text(
+                        Math.ceil(min_price_old_value + mousePlaceInPercent * price_na_odin_procent)
+                    );
+                }else if(mousePlaceInPercent > (min_BlockMusePlaceInPercent)){
+
+                    maxBlock.css('left', mousePlaceInPercent+'%');
+                    max_price_block.text(
+                        Math.ceil(min_price_old_value + mousePlaceInPercent * price_na_odin_procent)
+                    );
+                }
+
+                if(mousePlaceInPercent < 0){
+
+                    minBlock.css('left', 0+'%');
+                    min_price_block.text(
+                        min_price_old_value
+                    );
+                }
+
+                if(mousePlaceInPercent > 100){
+
+                    maxBlock.css('left', 100+'%');
+                    max_price_block.text(
+                        max_price_old_value
+                    );
+                }
+
+                //console.log(`${mousePlaceInPercent+'%'}`);
+            });
+        });
+    });
+
+
+
+function set_saved_filter_price(
+    min_price_value, 
+    max_price_value, 
+    min_price_old_value,
+    max_price_old_value,
+    minBlock,
+    maxBlock,
+    min_price_block,
+    max_price_block,
+    price_na_odin_procent
+){
+
+    var 
+    jThis = jQuery(".filter-line-block-agb"),
+    elemWidth = Number(jThis.width()),
+    onePercentValue = 100 / elemWidth,
+    raznica = max_price_old_value - min_price_old_value,
+    percent_for_correction = 100 / raznica,
+    mousePlaceInPercent_min = (min_price_value - min_price_old_value) * percent_for_correction,
+    mousePlaceInPercent_max = (max_price_value - min_price_old_value) * percent_for_correction;
+    
+    if(mousePlaceInPercent_min >=0 && mousePlaceInPercent_min <= 50){
+
+        minBlock.css('left', mousePlaceInPercent_min+'%');
+        min_price_block.text(
+            Math.ceil(min_price_value)
+        );
+    }
+
+    if(mousePlaceInPercent_max >=50 && mousePlaceInPercent_max <= 100){
+
+        maxBlock.css('left', mousePlaceInPercent_max+'%');
+        max_price_block.text(
+            Math.ceil(max_price_value)
+        );
+    }
+
+    if(mousePlaceInPercent_min < 0){
+
+        minBlock.css('left', 0+'%');
+        min_price_block.text(
+            min_price_old_value
+        );
+    }
+
+    if(mousePlaceInPercent_max > 100){
+
+        maxBlock.css('left', 100+'%');
+        max_price_block.text(
+            max_price_old_value
+        );
+    }
+}
+
+
+function one_product_html_generate_agb(products, user_status = 0){
+
+    var
+    html = '',
+    wishListBtnHtml = '';
+
+    for (key in products) {
+
+        if(user_status) wishListBtnHtml = '<div agb_product_id="'+products[key].id+'" class="btn-wishlist-add-now-agb"></div>';
+
+        html += 
+        '<li class="product post-'+products[key].id+'">'+
+            '<div class="agb-loop-product-link-wrap-elem">'+
+            wishListBtnHtml+
+            '<a href="'+products[key].addition.url+'" '+
+            'class="woocommerce-LoopProduct-link woocommerce-loop-product__link">'+
+                '<div class="loop-image-wrap">'+
+                    products[key].addition.onsale_html+
+                    products[key].addition.image_html+
+                    products[key].addition.quick_view_btn_html+
+                '</div>'+
+            '</a>'+
+            '</div>'+
+            products[key].addition.addition_block_html+
+            products[key].addition.title_html+
+            products[key].addition.price_html+
+            products[key].addition.add_to_cart_btn_html+
+        '</li>'
+        ;
+    }
+
+    return html;
+}
+
+
+function get_category_id_agb(){
+
+    var
+    category_block = jQuery('.filter-category-div'),
+    category_id = Number(category_block.attr('category_id'));
+
+    // If no exists category return "0" it mean without category
+    if(!category_block.hasClass('filter-category-div')) return 0;
+
+    return category_id;
+}
+
+
+function get_min_price_agb(){
+
+    var
+    min_price_block = jQuery('.price-part-agb .first-price'),
+    min_price_value = Number(min_price_block.text());
+    
+    // If no exists element of price or no exists price filter return "0" it mean without price
+    if(!min_price_block.hasClass('first-price')) return 0;
+
+    return min_price_value;
+}
+
+function get_max_price_agb(){
+
+    var
+    max_price_block = jQuery('.price-part-agb .second-price'),
+    max_price_value = Number(max_price_block.text());
+
+    // If no exists element of price or no exists price filter return "0" it mean without price
+    if(!max_price_block.hasClass('second-price')) return 0;
+
+    return max_price_value;
+}
+</script>

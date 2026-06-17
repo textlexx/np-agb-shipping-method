@@ -1,0 +1,412 @@
+<script>
+
+jQuery(document).ready(function(){
+
+    if(jQuery('.wrapper-filters-elements-agb .clean-all-filters').hasClass('clean-all-filters')){
+
+        jQuery('.wrapper-filters-elements-agb').css('display', 'flex');
+    }
+
+    var 
+    attr_filter_element = jQuery('.filter-attr-list-agb li');
+
+    attr_filter_element.unbind('click');
+    attr_filter_element.click(function(e){
+
+        var
+        $dataAjax = '',
+        jThis = jQuery(e.target),
+        attr_term_id = Number(jThis.attr('term_id')),
+        filter_block_wrap = jThis.closest('.filter-out-block-agb'),
+        slug_attrs_group = filter_block_wrap.find('.filter-block-name-agb').attr('slug_attrs_group'),
+        parent_filter_elements = jThis.closest('.filter-attr-list-agb'),
+        all_filter_elements = parent_filter_elements.find('li'),
+        category_id = 0,
+        dataH = history.state,
+        pathname = location.pathname;
+
+        category_id = get_category_id_agb();
+
+        if(pathname){
+
+            pathname = pathname.replace(/\/page\/[0-9]+/i, '');
+            pathname = pathname.replace(/\/$/i, '');
+
+            history.pushState(
+                dataH, 'title', 
+                location.protocol+'//'+
+                location.hostname+
+                pathname+
+                location.search+
+                location.hash
+            );
+        }
+
+        if(e.target.tagName == 'span' || e.target.tagName == 'SPAN'){
+
+            jThis = jQuery(e.target).parent();
+            // Reget term_id from right element
+            attr_term_id = Number(jThis.attr('term_id'));
+        }
+
+        if(jThis.hasClass('active')) {
+
+            jThis.removeClass('active');
+        }else{
+
+            jThis.addClass('active');
+        }
+
+        dataAjax = 
+        'action=ajax_products_adaptation_get'+
+        '&one_on_filter_elem_click=1'+
+        '&category_id_agb='+category_id+
+        '&slug_attrs_group='+slug_attrs_group+
+        '&attr_term_id='+attr_term_id+
+        '&page_num_agb=0'+
+        '&request_uri='+location.pathname+
+        '&query_string='+encodeURIComponent(location.search)+
+        '&hash_string='+location.hash;
+
+        agbSiteLoaderShow_plugin();
+
+        // Stop load if load in progress
+        window.load_in_progress_block_new_load = true;
+        //-------------------------------
+
+        jQuery.ajax({
+            type: "POST",
+            url: "/wp-admin/admin-ajax.php",
+            data: dataAjax,
+            dataType: "json",
+            success: function (data) {
+
+                var
+                parent_for_ul = jQuery('.site-main.sidebar-left'),
+                products_ul = jQuery('.site-main.sidebar-left ul.products'),
+                blockOfProductsForPaginSet = jQuery('.product-category-item-layout1.site-main.sidebar-left');
+
+                if (data.status == "success") {
+
+                    var
+                    html = one_product_html_generate_agb(data.products, data.user_login_status),
+                    products_ul = 
+                    jQuery('.site-main.sidebar-left ul.products'),
+                    filter_spans = jQuery('.filter-attr-list-agb li.active'),
+                    place_filter_add = jQuery('.wrapper-filters-elements-agb');
+
+                    // For additional loading js
+                    window.count_page_number_agb = 0;
+                    //-------------------------------
+                    // Allow load
+                    window.load_in_progress_block_new_load = false;
+                    //-------------------------------
+                    // Allow load
+                    window.stop_load_forever_if_products_are_over = false;
+                    //-------------------------------
+
+                    filter_spans.each(function(key, elem){
+
+                        var span_elems = jQuery(elem).find('span');
+                        // Update filtered products amount
+                        jQuery(span_elems[2]).text(data.common_amount_no_limit);
+                    });
+
+
+                    //-----------------------------------
+                    if(!data.do_filter_clear && no_exists_filter_in_block_for_clear_of_filters(data.if_click_add_filter.term_id)){
+
+                        if(!is_btn_all_clear_agb()) {
+
+                            var
+                            htmlBtnAllClear = add_btn_all_clear_agb();
+
+                            place_filter_add.prepend(htmlBtnAllClear);
+                        }
+
+                        var 
+                        htmlFltrElem = add_filter_elem_agb(
+                            data.if_click_add_filter.term_id,
+                            data.if_click_add_filter.slug, 
+                            data.if_click_add_filter.name
+                        );
+
+                        place_filter_add.append(htmlFltrElem);
+
+                        // Reload actions
+                        add_action_all_filters_delete_agb();                    
+                        add_action_concrete_filter_delete_agb();
+                    }
+                    //-----------------------------------
+                    else if(data.do_filter_clear){
+
+                        delete_concrete_filter_agb(data.if_click_add_filter.term_id);
+                        amount_change_of_current_no_active_filter_in_left_column_block(
+                            data.if_click_add_filter.term_id, 
+                            data.amount_only_one
+                        );
+                    }
+                    //-----------------------------------
+
+
+                    //products_ul.append(html);
+                    jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                    set_actions_on_addition_load_btn();
+
+                    // START. ZABLOKIROVANO CHTO BU KAZHDIJ RAZ PRI NAZHATII NA FILTER NE ZAGRYZHAT A TOLKO POSLE TOGO KAK VSE FITRU VUBRANU I NAZHATA KNOPKA PRIMENIT VSE FILTRU
+                    /*
+                    products_ul.html(html);
+
+                    scroll_top_filter_plugin_agb();
+                    //-----------------------------
+
+                    
+                    fast_add_to_cart_and_attrs_marks_actions_refresh();
+                    productAmountChangeFastBuy_plugin();
+                    // Refresh fast buy btn action
+                    fast_buy_refresh_action_agb();
+                    wish_list_btn_action_refresh();
+
+                    agb33da_fast_view_btn_product_popup_plugin();
+
+                    */ // END. ZABLOKIROVANO CHTO BU KAZHDIJ RAZ PRI NAZHATII NA FILTER NE ZAGRYZHAT A TOLKO POSLE TOGO KAK VSE FITRU VUBRANU I NAZHATA KNOPKA PRIMENIT VSE FILTRU
+
+                    // Pagination
+                    //---------------------------------------------
+                    blockOfProductsForPaginSet.find('.woocommerce-pagination').remove();
+                    blockOfProductsForPaginSet.append(data.pagin_html);
+                    //---------------------------------------------
+
+                    agbSiteLoaderHide_plugin();
+                    
+
+                    //loaderHideIfProgress();
+                    //loaderImageHide();
+                    //successDivTextChange(data.successes.message);
+                    //successDivShow();
+                    //btnCloseShow();
+                    //loaderShowIfProgress();
+                } else {
+
+                    // Allow load
+                    window.load_in_progress_block_new_load = false;
+                    //-------------------------------
+
+                    jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                    products_ul.before('<p class="woocommerce-info">'+data.errors.no_results+'</p>');
+                    products_ul.html('');
+                    set_actions_on_addition_load_btn();
+                    agbSiteLoaderHide_plugin();
+                    
+                    loaderHideIfProgress();
+                    loaderImageHide();
+                    errorDivTextChange(data.errors.message);
+                    errorDivShow();
+                    btnCloseShow();
+                    loaderShowIfProgress();
+                    
+                    //alert("error");
+                }
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+
+                // Allow load
+                window.load_in_progress_block_new_load = false;
+                //-------------------------------
+                
+                agbSiteLoaderHide_plugin();
+
+                loaderHideIfProgress();
+                loaderImageHide();
+                errorDivTextChange(errorThrown);
+                errorDivShow();
+                btnCloseShow();
+                loaderShowIfProgress();
+                
+                //alert(errorThrown);
+            }
+        });
+    });
+
+});
+
+
+
+
+function no_exists_filter_in_block_for_clear_of_filters(term_id){
+
+    var
+    place_filter_add = jQuery('.wrapper-filters-elements-agb'),
+    all_filters_in_block = place_filter_add.find('.one-filter-delete');
+
+    window.status_cinefibfcof = true;
+    window.term_id_cinefibfcof = Number(term_id);
+
+    all_filters_in_block.each(function(key, filter){
+
+        if(Number(jQuery(filter).attr('term_id')) == window.term_id_cinefibfcof){
+
+            window.status_cinefibfcof = false;
+            return false;
+        }
+    });
+
+    if(!window.status_cinefibfcof) return false;
+
+    return true;
+}
+
+
+
+function add_filter_elem_agb(term_id, slug, name = ''){
+
+    jQuery('.wrapper-filters-elements-agb').css('display', 'flex');
+
+    name = (name) ? name : slug;
+
+    var
+    html = 
+    '<div '+
+    'term_id="'+term_id+'" '+
+    'slug="'+slug+'" '+
+    'class="one-filter-delete" '+
+    '>'+
+        '<span class="descrip-text-agb">'+
+        name+
+        '</span>'+
+
+        '<span class="close-elem-agb"></span>'+
+    '</div>';
+
+    return html;
+}
+
+
+
+function is_btn_all_clear_agb(){
+
+    var
+    place_filter_add = jQuery('.wrapper-filters-elements-agb'),
+    btn_all_clear = place_filter_add.find('.clean-all-filters');
+
+    if(btn_all_clear.hasClass('clean-all-filters')){
+
+        return true;
+    }
+
+    return false;
+}
+
+
+
+function add_btn_all_clear_agb(){
+
+    jQuery('.wrapper-filters-elements-agb').css('display', 'flex');
+
+    var
+    html = 
+    '<div class="clean-all-filters"> '+
+        '<span class="descrip-text-agb"> '+
+            window.translate_for_js_fltr_plugin.clean_filters+
+        '</span> '+
+
+        '<span class="close-elem-agb"></span> '+
+    '</div>';
+
+    return html;
+}
+
+
+
+function delete_concrete_filter_agb(term_id){
+
+    var
+    place_filter = jQuery('.wrapper-filters-elements-agb'),
+    all_filters_in_block = place_filter.find('.one-filter-delete');
+
+    window.term_id_dcfa = Number(term_id);
+
+    all_filters_in_block.each(function(key, elem){
+        
+        var jElem = jQuery(elem);
+
+        if(Number(jElem.attr('term_id')) == window.term_id_dcfa){
+
+            jElem.remove();
+            tracking_for_filters_and_delete_if_not_exists();
+            return true;
+        }
+    });
+}
+
+
+
+function amount_change_of_current_no_active_filter_in_left_column_block(term_id, amount){
+
+    var
+    attrs_filters_elements = jQuery('.filter-attr-list-agb li');
+
+    window.term_id_acocnafilcb = Number(term_id);
+    window.amount_acocnafilcb = Number(amount);
+
+    attrs_filters_elements.each(function(key, elem){
+        
+        var 
+        jElem = jQuery(elem),
+        amountElem = jElem.find('span');
+
+        if(Number(jElem.attr('term_id')) == window.term_id_acocnafilcb){
+
+            jQuery(amountElem[2]).text(window.amount_acocnafilcb);
+            return true;
+        }
+    });
+}
+
+
+
+function amount_change_all_active_left_block_filters(amount){
+
+    var
+    attrs_filters_elements = jQuery('.filter-attr-list-agb li.active');
+
+    window.amount_acaalbf = Number(amount);
+
+    attrs_filters_elements.each(function(key, elem){
+        
+        var 
+        jElem = jQuery(elem),
+        amountElem = jElem.find('span');
+
+        jQuery(amountElem[2]).text(window.amount_acaalbf);
+    });
+}
+
+
+
+function get_filter_group_slug_agb(term_id){
+
+    var
+    attrs_filters_elements = jQuery('.filter-attr-list-agb li');
+
+    window.term_id_gfgsa = Number(term_id);
+    window.filter_slug_group_agb = '';
+
+    attrs_filters_elements.each(function(key, elem){
+        
+        var 
+        jElem = jQuery(elem);
+
+        if(Number(jElem.attr('term_id')) == window.term_id_gfgsa){
+
+            window.filter_slug_group_agb = 
+            jElem.closest('.filter-out-block-agb').find('.filter-block-name-agb').attr('slug_attrs_group');
+
+            return true;
+        }
+    });
+
+    return window.filter_slug_group_agb;
+}
+
+</script>

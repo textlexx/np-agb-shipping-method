@@ -1,0 +1,530 @@
+<script>
+
+jQuery(document).ready(function(){
+
+    var
+    all_clear_element = jQuery('.clean-all-filters'),
+    one_clear_element = jQuery('.one-filter-delete');
+
+
+    add_action_all_filters_delete_agb();
+
+    add_action_concrete_filter_delete_agb();
+
+    clean_all_available_filters();
+
+});
+
+
+
+function add_action_all_filters_delete_agb(){
+
+    var
+    all_clear_element = jQuery('.clean-all-filters');
+
+    all_clear_element.unbind('click');
+    all_clear_element.click(function(e){
+
+        var
+        jThis = jQuery(e.target),
+        parent_elem = jThis.closest('.wrapper-filters-elements-agb'),
+        clear_elem = parent_elem.find('.clean-all-filters'),
+        all_enother = parent_elem.find('.one-filter-delete'),
+        left_filter_elems = jQuery('.filter-attr-list-agb li.active'),
+        dataH = history.state,
+        pathname = location.pathname;
+
+        if(pathname){
+
+            pathname = pathname.replace(/\/page\/[0-9]+/i, '');
+            pathname = pathname.replace(/\/$/i, '');
+
+            history.pushState(
+                dataH, 'title', 
+                location.protocol+'//'+
+                location.hostname+
+                pathname+
+                location.search+
+                location.hash
+            );
+        }
+        
+        ajaxClearFilter('clear_filters_agb');
+        all_enother.remove();
+        clear_elem.remove();
+
+        jQuery('.wrapper-filters-elements-agb').css('display', 'none');
+
+        left_filter_elems.removeClass('active');
+    });
+}
+
+
+
+function add_action_concrete_filter_delete_agb(){
+
+    var
+    one_clear_element = jQuery('.one-filter-delete');
+
+    one_clear_element.unbind('click');
+    one_clear_element.click(function(e){
+
+        var
+        jThis = jQuery(e.target),
+        left_filter_elems = jQuery('.filter-attr-list-agb li.active'),
+        dataH = history.state,
+        pathname = location.pathname;
+
+        if(pathname){
+
+            pathname = pathname.replace(/\/page\/[0-9]+/i, '');
+            pathname = pathname.replace(/\/$/i, '');
+
+            history.pushState(
+                dataH, 'title', 
+                location.protocol+'//'+
+                location.hostname+
+                pathname+
+                location.search+
+                location.hash
+            );
+        }
+
+        if(jThis.hasClass('one-filter-delete')){
+
+            var
+            term_id = Number(jThis.attr('term_id')),
+            slug_attrs_group = get_filter_group_slug_agb(term_id);
+
+            window.term_id_aacfda = term_id;
+
+            ajaxClearFilter('one_filter_agb', term_id, slug_attrs_group);
+            jThis.remove();
+        }else{
+
+            var
+            parent = jThis.closest('.one-filter-delete'),
+            term_id = Number(parent.attr('term_id')),
+            slug_attrs_group = get_filter_group_slug_agb(term_id);
+
+            window.term_id_aacfda = term_id;
+
+            ajaxClearFilter('one_filter_agb', term_id, slug_attrs_group);
+            parent.remove();
+        }
+
+        left_filter_elems.each(function(key, elem){
+
+            var jElem = jQuery(elem);
+            if(Number(jElem.attr('term_id')) == window.term_id_aacfda){
+
+                jElem.removeClass('active');
+                return true;
+            }
+        });
+
+        tracking_for_filters_and_delete_if_not_exists();
+    });
+}
+
+
+
+function tracking_for_filters_and_delete_if_not_exists(){
+
+    var
+    filters_els = jQuery('.wrapper-filters-elements-agb').find('.one-filter-delete'),
+    btn_clr = jQuery('.wrapper-filters-elements-agb').find('.clean-all-filters');
+
+    if(filters_els.length < 1){
+
+        btn_clr.remove();
+        jQuery('.wrapper-filters-elements-agb').css('display', 'none');
+    }
+}
+
+
+
+function ajaxClearFilter(filter_type_clean = 'clear_filters_agb', term_id = 0, slug_attrs_group = ''){
+
+    var 
+    category_id = 0;
+
+    category_id = get_category_id_agb();
+
+    window.filter_type_clean = '';
+    if(filter_type_clean == 'clear_filters_agb'){
+        
+        window.filter_type_clean = filter_type_clean;
+        part_query = filter_type_clean+'=1';
+    }else if(filter_type_clean == 'one_filter_agb' && term_id){
+
+        window.filter_type_clean = filter_type_clean;
+        part_query = filter_type_clean+'='+term_id+'&slug_attrs_group='+slug_attrs_group;
+    }
+
+    dataAjax = 
+    'action=ajax_products_adaptation_get'+
+    '&category_id_agb='+category_id+
+    '&'+part_query+
+    '&page_num_agb=0'+
+    '&request_uri='+location.pathname+
+    '&query_string='+encodeURIComponent(location.search)+
+    '&hash_string='+location.hash;
+
+    //loaderShowIfProgress();
+    agbSiteLoaderShow_plugin();
+
+    // Stop load if load in progress
+    window.load_in_progress_block_new_load = true;
+    //-------------------------------
+
+    jQuery.ajax({
+        type: "POST",
+        url: "/wp-admin/admin-ajax.php",
+        data: dataAjax,
+        dataType: "json",
+        success: function (data) {
+
+            var
+            parent_for_ul = jQuery('.site-main.sidebar-left'),
+            products_ul = jQuery('.site-main.sidebar-left ul.products'),
+            blockOfProductsForPaginSet = jQuery('.product-category-item-layout1.site-main.sidebar-left'),
+            howMutchTovars = jQuery('.site-main.sidebar-left .col-md-6.col-6.agb-first-elem');
+
+            if (data.status == "success") {
+
+                var
+                html = one_product_html_generate_agb(data.products, data.user_login_status);
+
+                // For additional loading js
+                window.count_page_number_agb = 0;
+                //-------------------------------
+                // Allow load
+                window.load_in_progress_block_new_load = false;
+                //-------------------------------
+                // Allow load
+                window.stop_load_forever_if_products_are_over = false;
+                //-------------------------------
+
+
+                if(window.filter_type_clean == 'clear_filters_agb'){
+
+                    for(elem in data.all_filters_for_del){
+
+                        amount_change_of_current_no_active_filter_in_left_column_block(
+                            data.all_filters_for_del[elem].id, 
+                            data.all_filters_for_del[elem].amount
+                        );
+                    }
+                }else{
+
+                    amount_change_of_current_no_active_filter_in_left_column_block(
+                        data.if_click_add_filter.term_id, 
+                        data.amount_only_one
+                    );
+
+                    // After deactivated filter update amount of all active filter
+                    amount_change_all_active_left_block_filters(data.common_amount_no_limit);
+                }
+
+                //products_ul.append(html);
+                jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                set_actions_on_addition_load_btn();
+
+                // START. ZABLOKIROVANO CHTO BU KAZHDIJ RAZ PRI NAZHATII NA FILTER NE ZAGRYZHAT A TOLKO POSLE TOGO KAK VSE FITRU VUBRANU I NAZHATA KNOPKA PRIMENIT VSE FILTRU
+                /*
+                products_ul.html(html);
+
+                scroll_top_filter_plugin_agb();
+                //-----------------------------
+                
+                fast_add_to_cart_and_attrs_marks_actions_refresh();
+                productAmountChangeFastBuy_plugin();
+                // Refresh fast buy btn action
+                fast_buy_refresh_action_agb();
+                wish_list_btn_action_refresh();
+
+                agb33da_fast_view_btn_product_popup_plugin();
+
+                */ // END. ZABLOKIROVANO CHTO BU KAZHDIJ RAZ PRI NAZHATII NA FILTER NE ZAGRYZHAT A TOLKO POSLE TOGO KAK VSE FITRU VUBRANU I NAZHATA KNOPKA PRIMENIT VSE FILTRU
+
+                // Pagination
+                //---------------------------------------------
+                blockOfProductsForPaginSet.find('.woocommerce-pagination').remove();
+                blockOfProductsForPaginSet.append(data.pagin_html);
+                //---------------------------------------------
+
+                // Results count
+                //---------------------------------------------
+                howMutchTovars.find('.header-title-mobile-agb').remove();
+                howMutchTovars.find('.woocommerce-result-count').remove();
+                howMutchTovars.prepend(data.poln_kolichestvo);
+                //---------------------------------------------
+
+                agbSiteLoaderHide_plugin();
+
+                //loaderHideIfProgress();
+                //loaderImageHide();
+                //successDivTextChange(data.successes.message);
+                //successDivShow();
+                //btnCloseShow();
+                //loaderShowIfProgress();
+            } else {
+
+                // Allow load
+                window.load_in_progress_block_new_load = false;
+                //-------------------------------
+
+                jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                products_ul.before('<p class="woocommerce-info">'+data.errors.no_results+'</p>');
+                products_ul.html('');
+                set_actions_on_addition_load_btn();
+                agbSiteLoaderHide_plugin();
+                
+                loaderHideIfProgress();
+                loaderImageHide();
+                errorDivTextChange(data.errors.message);
+                errorDivShow();
+                btnCloseShow();
+                loaderShowIfProgress();
+                
+                //alert("error");
+            }
+        },
+        error: function( jqXHR, textStatus, errorThrown ){
+
+            // Allow load
+            window.load_in_progress_block_new_load = false;
+            //-------------------------------
+
+            agbSiteLoaderHide_plugin();
+            
+            loaderHideIfProgress();
+            loaderImageHide();
+            errorDivTextChange(errorThrown);
+            errorDivShow();
+            btnCloseShow();
+            loaderShowIfProgress();
+            
+            //alert(errorThrown);
+        }
+    });
+}
+
+
+
+function clean_all_available_filters(){
+
+    jQuery('.btn-part-agb .fltr-btn-agb-2.clean-all').click(function(){
+
+        var 
+        $dataAjax = '',
+        category_id = get_category_id_agb(),
+        dataH = history.state,
+        pathname = location.pathname;
+
+        if(pathname){
+
+            pathname = pathname.replace(/\/page\/[0-9]+/i, '');
+            pathname = pathname.replace(/\/$/i, '');
+
+            history.pushState(
+                dataH, 'title', 
+                location.protocol+'//'+
+                location.hostname+
+                pathname+
+                location.search+
+                location.hash
+            );
+        }
+
+        dataAjax = 
+        'action=ajax_products_adaptation_get'+
+        '&clean_all_filters_agb=1'+
+        '&category_id_agb='+category_id+
+        '&page_num_agb=0'+
+        '&request_uri='+location.pathname+
+        '&query_string='+encodeURIComponent(location.search)+
+        '&hash_string='+location.hash;
+
+        //loaderShowIfProgress();
+        agbSiteLoaderShow_plugin();
+
+        // Stop load if load in progress
+        window.load_in_progress_block_new_load = true;
+        //-------------------------------
+
+        jQuery.ajax({
+            type: "POST",
+            url: "/wp-admin/admin-ajax.php",
+            data: dataAjax,
+            dataType: "json",
+            success: function (data) {
+
+                var
+                parent_for_ul = jQuery('.site-main.sidebar-left'),
+                products_ul = jQuery('.site-main.sidebar-left ul.products'),
+                blockWithCat = jQuery('#secondary'),
+                blockOfProductsForPaginSet = jQuery('.product-category-item-layout1.site-main.sidebar-left'),
+                howMutchTovars = jQuery('.site-main.sidebar-left .col-md-6.col-6.agb-first-elem');
+
+                if (data.status == "success") {
+
+                    var
+                    html = one_product_html_generate_agb(data.products, data.user_login_status),
+                    clear_elem = jQuery('.clean-all-filters'),
+                    all_enother = jQuery('.one-filter-delete'),
+                    left_filter_elems = jQuery('.filter-attr-list-agb li.active');
+
+                    // For additional loading js
+                    window.count_page_number_agb = 0;
+                    //-------------------------------
+                    // Allow load
+                    window.load_in_progress_block_new_load = false;
+                    //-------------------------------
+                    // Allow load
+                    window.stop_load_forever_if_products_are_over = false;
+                    //-------------------------------
+
+                    jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                    set_actions_on_addition_load_btn();
+                    //products_ul.append(html);
+                    products_ul.html(html);
+
+                    scroll_top_filter_plugin_agb();
+                    //-----------------------------
+                    
+                    fast_add_to_cart_and_attrs_marks_actions_refresh();
+                    productAmountChangeFastBuy_plugin();
+                    // Refresh fast buy btn action
+                    fast_buy_refresh_action_agb();
+                    wish_list_btn_action_refresh();
+
+                    agb33da_fast_view_btn_product_popup_plugin();
+
+                    //---------------------
+                    price_elem_reset_agb();
+                    //---------------------
+
+                    //---------------------
+                    ajaxClearFilter('clear_filters_agb');
+                    all_enother.remove();
+                    clear_elem.remove();
+                    left_filter_elems.removeClass('active');
+                    //---------------------
+
+                    jQuery('.wrapper-filters-elements-agb').css('display', 'none');
+
+                    for(elem in data.all_filters_for_del){
+
+                        amount_change_of_current_no_active_filter_in_left_column_block(
+                            data.all_filters_for_del[elem].id, 
+                            data.all_filters_for_del[elem].amount
+                        );
+                    }
+
+                    // Pagination
+                    //---------------------------------------------
+                    blockOfProductsForPaginSet.find('.woocommerce-pagination').remove();
+                    blockOfProductsForPaginSet.append(data.pagin_html);
+                    //---------------------------------------------
+
+                    // Results count
+                    //---------------------------------------------
+                    howMutchTovars.find('.header-title-mobile-agb').remove();
+                    howMutchTovars.find('.woocommerce-result-count').remove();
+                    howMutchTovars.prepend(data.poln_kolichestvo);
+                    //---------------------------------------------
+
+                    agbSiteLoaderHide_plugin();
+
+                    //loaderHideIfProgress();
+                    //loaderImageHide();
+                    //successDivTextChange(data.successes.message);
+                    //successDivShow();
+                    //btnCloseShow();
+                    //loaderShowIfProgress();
+                } else {
+
+                    // Allow load
+                    window.load_in_progress_block_new_load = false;
+                    //-------------------------------
+                    
+                    jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                    products_ul.before('<p class="woocommerce-info">'+data.errors.no_results+'</p>');
+                    products_ul.html('');
+                    set_actions_on_addition_load_btn();
+                    agbSiteLoaderHide_plugin();
+
+                    loaderHideIfProgress();
+                    loaderImageHide();
+                    errorDivTextChange(data.errors.message);
+                    errorDivShow();
+                    btnCloseShow();
+                    loaderShowIfProgress();
+                    
+                    //alert("error");
+                }
+
+                // START. ETOT BLOCK KODA TAKZHE NAHODITSA V TEME
+                if(jQuery( window ).width() < 769){
+
+                    blockWithCat.animate({
+                        width: 0,
+                    }, 200, "linear", function() {
+                        window.rememberStateAgb = 'hide';
+                    });
+                }
+                // END. ETOT BLOCK KODA TAKZHE NAHODITSA V TEME
+
+                jQuery(document).scrollTop();
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+
+                // Allow load
+                window.load_in_progress_block_new_load = false;
+                //-------------------------------
+
+                var
+                parent_for_ul = jQuery('.site-main.sidebar-left');
+
+                parent_for_ul.html('<p class="woocommerce-info">An error has occurred.</p>');
+
+                agbSiteLoaderHide_plugin();
+                
+                loaderHideIfProgress();
+                loaderImageHide();
+                errorDivTextChange(errorThrown);
+                errorDivShow();
+                btnCloseShow();
+                loaderShowIfProgress();
+                
+                //alert(errorThrown);
+            }
+        });
+    });
+}
+
+
+
+function price_elem_reset_agb(){
+
+    var
+    minBlock = jQuery('.filter-line-block-agb .min-element-agb'),
+    maxBlock = jQuery('.filter-line-block-agb .max-element-agb'),
+    min_price_block = jQuery('.price-part-agb .first-price'),
+    max_price_block = jQuery('.price-part-agb .second-price');
+
+    minBlock.css('left', 0+'%');
+    maxBlock.css('left', 100+'%');
+
+    min_price_block.text(
+        window.min_price_old_value
+    );
+
+    max_price_block.text(
+        window.max_price_old_value
+    );
+}
+
+</script>

@@ -1,0 +1,288 @@
+<script>
+
+jQuery(document).ready(function(){
+
+    var
+    elemOrderDropdown_plugin = jQuery('.order-by-in-catalog-agb .now-active-order-agb'),
+    listElem_plugin = jQuery('.order-by-in-catalog-agb .order-inner-elem-agb li');
+    //---------------------------------------
+
+    if(elemOrderDropdown_plugin.hasClass('now-active-order-agb')){
+
+        setCurrentSortMethod_plugin();
+
+        // Snachala ydalyem ranee ystanovlennoe sobutie chto bu ne bulo konfliktov s temoj
+        // potomy chto v teme est pohozhij fynkcional
+        elemOrderDropdown_plugin.unbind('mousedown');
+        //-------------------------------------------
+
+        elemOrderDropdown_plugin.mousedown(function(e){
+
+            // Tolko levaya knopka mushi
+            if(e.which != 1) return false;
+
+            var
+            listDropdown = 
+            jQuery(e.target).closest('.order-by-in-catalog-agb').
+            find('.order-inner-elem-agb');
+
+            if(listDropdown.css('display') == 'none'){
+
+                listDropdown.slideDown(200);
+            }else{
+
+                listDropdown.slideUp(200);
+            }
+        });
+
+        // Snachala ydalyem ranee ystanovlennoe sobutie chto bu ne bulo konfliktov s temoj
+        // potomy chto v teme est pohozhij fynkcional
+        listElem_plugin.unbind('mousedown');
+        //-------------------------------------------
+
+        listElem_plugin.mousedown(function(e){
+
+            // Tolko levaya knopka mushi
+            if(e.which != 1) return false;
+
+            var
+            liElem = jQuery(e.target),
+            listDropdown = 
+            liElem.closest('.order-by-in-catalog-agb').
+            find('.order-inner-elem-agb'),
+            elemOrderDropdown_plugin = jQuery('.order-by-in-catalog-agb .now-active-order-agb span'),
+            methodSort = '',
+            textLiElem = '',
+            $dataAjax = '',
+            category_id = 0,
+            order_method = 'DESC',
+            dataH = history.state,
+            pathname = document.location.pathname,
+            search = location.search; // query string with ?
+
+            category_id = get_category_id_agb();
+
+            listDropdown.slideUp(200);
+            
+            if(e.target.tagName == 'li' || e.target.tagName == 'LI'){
+
+                textLiElem = liElem.text();
+                methodSort = liElem.attr('value');
+                elemOrderDropdown_plugin.text(textLiElem);
+
+                //alert('plugin sort work');
+
+                if(!search){
+
+                    // Izmenyaem url bravzera bez obnovleniya stranicu
+                    history.pushState(
+                        dataH, 'title', 
+                        location.protocol+'//'+
+                        location.hostname+
+                        location.pathname+
+                        '?orderby='+methodSort+
+                        location.hash
+                    );
+                }else{
+
+                    // Ydalyaem syshchestvyjyshchij "order by" dlya dobavleniya novogo
+                    search = search.replace(/(\?|\&)orderby=[^&]*/i, '');
+                    search = search.replace(/^\&/i, '?');
+
+                    if(!search){
+
+                        // Izmenyaem url bravzera bez obnovleniya stranicu
+                        history.pushState(
+                            dataH, 'title', 
+                            location.protocol+'//'+
+                            location.hostname+
+                            location.pathname+
+                            '?orderby='+methodSort+
+                            location.hash
+                        );
+                    }else{
+
+                        // Izmenyaem url bravzera bez obnovleniya stranicu
+                        history.pushState(
+                            dataH, 'title', 
+                            location.protocol+'//'+
+                            location.hostname+
+                            location.pathname+
+                            search+
+                            '&orderby='+methodSort+
+                            location.hash
+                        );
+                    }
+                }
+
+                if(pathname){
+
+                    pathname = pathname.replace(/\/page\/[0-9]+/i, '');
+                    pathname = pathname.replace(/\/$/i, '');
+
+                    history.pushState(
+                        dataH, 'title', 
+                        location.protocol+'//'+
+                        location.hostname+
+                        pathname+
+                        location.search+
+                        location.hash
+                    );
+                }
+
+                if(methodSort == 'price'){
+                    
+                    order_method = 'ASC';
+                }else if(methodSort == 'menu_order'){
+
+                    //order_method = 'ASC';
+
+                    // Poka vmesto "menu_order" stavim "post_date"
+                    methodSort = 'post_date';
+                    // i sortiryem ot bolshego
+                    order_method = 'DESC';
+                }
+
+                dataAjax = 
+                'action=ajax_products_adaptation_get'+
+                '&order_elem_click_now=1'+
+                '&category_id_agb='+category_id+
+                '&order_by_name='+methodSort+
+                '&order_by_method='+order_method+
+                '&page_num_agb=0'+
+                '&request_uri='+location.pathname+
+                '&query_string='+encodeURIComponent(location.search)+
+                '&hash_string='+location.hash;
+
+                //loaderShowIfProgress();
+                agbSiteLoaderShow_plugin();
+
+                // Stop load if load in progress
+                window.load_in_progress_block_new_load = true;
+                //-------------------------------
+
+                jQuery.ajax({
+                    type: "POST",
+                    url: "/wp-admin/admin-ajax.php",
+                    data: dataAjax,
+                    dataType: "json",
+                    success: function (data) {
+
+                        var
+                        parent_for_ul = jQuery('.site-main.sidebar-left'),
+                        products_ul = jQuery('.site-main.sidebar-left ul.products'),
+                        blockOfProductsForPaginSet = jQuery('.product-category-item-layout1.site-main.sidebar-left'),
+                        howMutchTovars = jQuery('.site-main.sidebar-left .col-md-6.col-6.agb-first-elem');
+
+                        if (data.status == "success") {
+
+                            var
+                            html = one_product_html_generate_agb(data.products, data.user_login_status);
+
+                            // For additional loading js
+                            window.count_page_number_agb = 0;
+                            //-------------------------------
+                            // Allow load
+                            window.load_in_progress_block_new_load = false;
+                            //-------------------------------
+                            // Allow load
+                            window.stop_load_forever_if_products_are_over = false;
+                            //-------------------------------
+
+                            //products_ul.append(html);
+                            jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                            set_actions_on_addition_load_btn();
+                            products_ul.html(html);
+
+                            scroll_top_filter_plugin_agb();
+                            //-----------------------------
+                            
+                            fast_add_to_cart_and_attrs_marks_actions_refresh();
+                            productAmountChangeFastBuy_plugin();
+                            // Refresh fast buy btn action
+                            fast_buy_refresh_action_agb();
+                            wish_list_btn_action_refresh();
+
+                            agb33da_fast_view_btn_product_popup_plugin();
+
+                            // Pagination
+                            //---------------------------------------------
+                            blockOfProductsForPaginSet.find('.woocommerce-pagination').remove();
+                            blockOfProductsForPaginSet.append(data.pagin_html);
+                            //---------------------------------------------
+
+                            // Results count
+                            //---------------------------------------------
+                            howMutchTovars.find('.header-title-mobile-agb').remove();
+                            howMutchTovars.find('.woocommerce-result-count').remove();
+                            howMutchTovars.prepend(data.poln_kolichestvo);
+                            //---------------------------------------------
+
+                            agbSiteLoaderHide_plugin();
+
+                            //loaderHideIfProgress();
+                            //loaderImageHide();
+                            //successDivTextChange(data.successes.message);
+                            //successDivShow();
+                            //btnCloseShow();
+                            //loaderShowIfProgress();
+                        } else {
+
+                            // Allow load
+                            window.load_in_progress_block_new_load = false;
+                            //-------------------------------
+
+                            jQuery('.site-main.sidebar-left .woocommerce-info').remove();
+                            products_ul.before('<p class="woocommerce-info">'+data.errors.no_results+'</p>');
+                            products_ul.html('');
+                            set_actions_on_addition_load_btn();
+                            agbSiteLoaderHide_plugin();
+                            
+                            loaderHideIfProgress();
+                            loaderImageHide();
+                            errorDivTextChange(data.errors.message);
+                            errorDivShow();
+                            btnCloseShow();
+                            loaderShowIfProgress();
+                            
+                            //alert("error");
+                        }
+                    },
+                    error: function( jqXHR, textStatus, errorThrown ){
+
+                        // Allow load
+                        window.load_in_progress_block_new_load = false;
+                        //-------------------------------
+                        
+                        agbSiteLoaderHide_plugin();
+
+                        loaderHideIfProgress();
+                        loaderImageHide();
+                        errorDivTextChange(errorThrown);
+                        errorDivShow();
+                        btnCloseShow();
+                        loaderShowIfProgress();
+                        
+                        //alert(errorThrown);
+                    }
+                });
+            }
+        });
+    }
+});
+
+
+
+function setCurrentSortMethod_plugin(){
+
+    var
+    liCurrentMethod = jQuery('.order-by-in-catalog-agb .order-inner-elem-agb li.active'),
+    getCurrentSortMethodText = liCurrentMethod.text(),
+    nowActiveSortElemText = jQuery('.order-by-in-catalog-agb .now-active-order-agb span');
+
+    if(!liCurrentMethod.hasClass('active')) return false;
+
+    nowActiveSortElemText.text(getCurrentSortMethodText);
+}
+
+</script>

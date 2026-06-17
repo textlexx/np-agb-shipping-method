@@ -1,0 +1,183 @@
+<script>
+
+function productAmountChangeFastBuy_plugin(){
+
+    var 
+    minus = jQuery(".fast-buy-amount-product-elem-agb .fast-buy-minus"),
+    plus = jQuery(".fast-buy-amount-product-elem-agb .fast-buy-plus");
+
+    // Remove action first, for no duplicate
+    minus.unbind('click');
+
+    minus.click(function(e){
+
+        var
+        jThis = jQuery(e.target),
+        jThisInput = jThis.closest('.fast-buy-amount-product-elem-agb').find('.fast_buy_amount_input_elem_agb'),
+        value = Number(jThisInput.val());
+
+        if(!value.toString().match(/[0-9]+/i)) value = 2;
+
+        if(value > 1){
+
+            jThisInput.val(--value);
+        }
+    });
+
+    // Remove action first, for no duplicate
+    plus.unbind('click');
+
+    plus.click(function(e){
+
+        var
+        jThis = jQuery(e.target),
+        jThisInput = jThis.closest('.fast-buy-amount-product-elem-agb').find('.fast_buy_amount_input_elem_agb'),
+        value = Number(jThisInput.val());
+
+        if(!value.toString().match(/[0-9]+/i)) value = 1;
+        jThisInput.val(++value);
+    });
+}
+
+
+function scroll_top_filter_plugin_agb(){
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+}
+
+
+
+function agb33da_fast_view_btn_product_popup_plugin(){
+
+    var
+    button = document.querySelectorAll('.agb33da-quick-view');
+
+    for (var i = 0; i < button.length; i++) {
+        
+        button[i].removeEventListener('click', agb33da.quickView.add_btn_quick_view);
+        button[i].addEventListener('click', agb33da.quickView.add_btn_quick_view);
+    }
+
+    // Is in themes/agb-agb33da/assets/js/custom.js and custom.min.js
+    agb33da.quickView.build();
+}
+
+
+
+function get_lang_of_site_for_filter(){
+
+    var
+    langBlock = jQuery('.filter-category-div'),
+    lang = '';
+
+    if(!langBlock.hasClass('filter-category-div')) return lang;
+
+    return langBlock.attr('site_lang');
+}
+
+
+
+function openErrorWindow_plugin(text = ''){
+
+    jQuery('#errorWindow').css('display', 'none');
+    jQuery('#errorWindow .error-text-place span').text(text);
+    jQuery('#errorWindow').css('display', 'block');
+}
+
+function closeErrorWindow_plugin(){
+
+    jQuery('#errorWindow').css('display', 'none');
+    jQuery('#errorWindow .error-text-place span').text('');
+}
+
+function openSuccessWindow_plugin(text = ''){
+
+    jQuery('#successWindow').css('display', 'none');
+    jQuery('#successWindow .success-text-place span').text(text);
+    jQuery('#successWindow').css('display', 'block');
+}
+
+function closeSuccessWindow_plugin(){
+
+    jQuery('#successWindow').css('display', 'none');
+    jQuery('#successWindow .success-text-place span').text('');
+}
+
+
+
+function getProductAmountAgb_plugin(jProduct){
+
+    var
+    value = jProduct.find('.fast_buy_amount_input_elem_agb').val();
+
+    if(!value.toString().match(/[0-9]+/i)) {
+        
+        value = 1;
+        return value;
+    }
+
+    if(Number(value) < 1) return 1;
+
+    return value;
+}
+
+
+function agbSiteLoaderShow_plugin(){
+
+    jQuery('.site-loader-agb').css('display', 'block');
+}
+
+function agbSiteLoaderHide_plugin(){
+
+    jQuery('.site-loader-agb').css('display', 'none');
+}
+
+
+
+function set_cookie ( name, value, exp_y, exp_m, exp_d, path, domain, secure ){
+
+    var cookie_string = name + "=" + escape ( value );
+
+    if ( exp_y )
+    {
+    var expires = new Date ( exp_y, exp_m, exp_d );
+    cookie_string += "; expires=" + expires.toGMTString();
+    }
+
+    if ( path )
+        cookie_string += "; path=" + escape ( path );
+
+    if ( domain )
+        cookie_string += "; domain=" + escape ( domain );
+
+    if ( secure )
+        cookie_string += "; secure";
+
+    document.cookie = cookie_string;
+}
+
+
+
+function delete_cookie ( cookie_name ){
+
+    var cookie_date = new Date ( );  // Текущая дата и время
+    cookie_date.setTime ( cookie_date.getTime() - 1 );
+    document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
+}
+
+
+
+function get_cookie ( cookie_name ){
+    
+    var results = document.cookie.match ( '(^|;) ?' + cookie_name + '=([^;]*)(;|$)' );
+
+    if ( results )
+    return ( unescape ( results[2] ) );
+    else
+    return null;
+}
+</script>
