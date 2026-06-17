@@ -1,6 +1,6 @@
 <?php
 
-namespace spaceProductsFilters;
+namespace NpAgbShippingMethod;
 
 Files_Include_Functions::include_html_file_css('style');
 

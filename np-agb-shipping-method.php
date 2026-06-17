@@ -1,6 +1,6 @@
 <?php
 
-namespace spaceProductsFilters;
+namespace NpAgbShippingMethod;
 
 session_start();
 

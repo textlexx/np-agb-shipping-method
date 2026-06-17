@@ -1,19 +1,19 @@
 <?php
 
-namespace spaceProductsFilters;
+namespace NpAgbShippingMethod;
 
 class FiltersFunctions{
 
     // Ystanovka sortirovki tovarov kataloga po ymolchanijy po "date" vmesto "menu_order"
     public static function default_catalog_order(){
         
-        add_filter('woocommerce_default_catalog_orderby', 'spaceProductsFilters\filter_def_order_agb', 1, 1000);
+        add_filter('woocommerce_default_catalog_orderby', 'NpAgbShippingMethod\filter_def_order_agb', 1, 1000);
     }
 
     // Menyaem nazvanie elementa po ymolchanijy
     public static function list_all_catalog_orderby(){
         
-        add_filter('woocommerce_catalog_orderby', 'spaceProductsFilters\all_catalog_orderby_agb', 1, 1001);
+        add_filter('woocommerce_catalog_orderby', 'NpAgbShippingMethod\all_catalog_orderby_agb', 1, 1001);
     }
 }
 

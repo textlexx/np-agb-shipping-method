@@ -1,6 +1,6 @@
 <?php
 
-namespace spaceProductsFilters;
+namespace NpAgbShippingMethod;
 
 
 class Files_Include_Functions{

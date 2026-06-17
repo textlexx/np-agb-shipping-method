@@ -1,6 +1,6 @@
 <?php
 
-namespace spaceProductsFilters;
+namespace NpAgbShippingMethod;
 
 function startAddLoadImage_wp_scripts(){
 
