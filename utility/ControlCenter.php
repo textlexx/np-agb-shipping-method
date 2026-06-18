@@ -6,7 +6,7 @@ class ControlCenter{
 	
 	//-----------------------------------------------------------------------
 
-	public static function killWpMagicQuotes(&$val){
+	public static function killWpMagicQuotes(mixed &$val):bool{
 		
 		if($val){
 
@@ -23,7 +23,7 @@ class ControlCenter{
 	//-----------------------------------------------------------------------
 	
 	// True check on empty value
-	public static function empty(&$val){
+	public static function empty(mixed &$val):bool{
 		
 		if(preg_match('#^[\t\r\n ]*$#', $val)){
 
@@ -35,7 +35,7 @@ class ControlCenter{
 	
 	//-----------------------------------------------------------------------
 
-	public static function login(&$val){
+	public static function login(mixed &$val):bool{
 		
 		if(preg_match('#^[0-9a-zA-Z_\.\-\*]{1,50}$#', $val)){
 
@@ -47,7 +47,7 @@ class ControlCenter{
 	
 	//-----------------------------------------------------------------------
 
-	public static function email(&$val){
+	public static function email(mixed &$val):bool{
 		
 		if(preg_match('#^[0-9a-zA-Z\.\-\*_]{1,50}@[0-9a-zA-Z\.\-_]{1,100}\.[a-zA-Z]{2,5}$#', $val)){
 
@@ -59,7 +59,7 @@ class ControlCenter{
 	
 	//-----------------------------------------------------------------------
 
-	public static function password(&$val){
+	public static function password(mixed &$val):bool{
 		
 		if(preg_match('#^[^ \t\r\nЙйЦцУуКкЕеНнГгШшЩщЗзХхЇїФфІіВвАаПпРрОоЛлДдЖжЄєЭэЯяЧчСсМмИиТтЬьБбЮюЁёЫыЪъ]{1,50}$#', $val)){
 
@@ -71,23 +71,23 @@ class ControlCenter{
 	
 	//-----------------------------------------------------------------------
 
-	public static function jsonEncode($value){
+	public static function jsonEncode(mixed &$val):string{
 
-		return json_encode($value, JSON_HEX_TAG && JSON_HEX_AMP && JSON_HEX_APOS && JSON_HEX_QUOT);
+		return json_encode($val, JSON_HEX_TAG && JSON_HEX_AMP && JSON_HEX_APOS && JSON_HEX_QUOT);
 	}
 
 	//-----------------------------------------------------------------------
 
-	public static function is_opt_amount_symbols_right($value, $maxLength = 100){
+	public static function is_opt_amount_symbols_right(mixed &$val, $maxLength = 100){
 
-		if(mb_strlen($value) <= $maxLength) return true;
+		if(mb_strlen($val) <= $maxLength) return true;
 
 		return false;
 	}
 
 	//-----------------------------------------------------------------------
 
-	public static function isOnlyEngSymbs(&$val){
+	public static function isOnlyEngSymbs(mixed &$val){
 		
 		if(preg_match('#^[0-9a-zA-Z_]+$#', $val)){
 

@@ -6,7 +6,7 @@ class SetOptions{
 	
 	//-----------------------------------------------------------------------
 	/*
-	public static function exampleSetOption(){
+	public static function exampleSetOption():bool{
 		
 		if(!isset($_REQUEST['param_name1']) || $_REQUEST['param_name2'] == 'on') return false;
 		
