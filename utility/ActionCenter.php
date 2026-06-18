@@ -30,4 +30,18 @@ class ActionCenter{
     }
 
     //-----------------------------------------------------------------------
+
+    public static function init_my_custom_shipping_method():void{
+
+        add_action( 'plugins_loaded', 'NpAgbShippingMethod\init_my_custom_shipping_method' );
+    }
+
+    //-----------------------------------------------------------------------
+
+    public static function add_my_custom_shipping_method():void{
+
+        add_action( 'woocommerce_shipping_methods', 'NpAgbShippingMethod\add_my_custom_shipping_method' );
+    }
+
+    //-----------------------------------------------------------------------
 }

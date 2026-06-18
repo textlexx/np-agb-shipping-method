@@ -2,6 +2,8 @@
 
 namespace NpAgbShippingMethod;
 
+use WC_Shipping_Method;
+
 
 function create_db_tables(string $tabName):bool{
 
@@ -39,8 +41,6 @@ function trsltCommonJs():void{
     ';
 }
 
-
-
 function rightWebProtocol():string{
 
     $protocol = (strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https') ? 'https' : 'http';
@@ -59,5 +59,73 @@ function rightWebProtocol():string{
         
     return $protocol.'://';
 }
+
+function add_my_custom_shipping_method( $methods ) {
+
+    $methods['my_custom_shipping'] = 'WC_My_Custom_Shipping_Method';
+    return $methods;
+}
+function init_my_custom_shipping_method() {
+
+    if ( class_exists( 'WC_Shipping_Method' ) ) {
+
+        class WC_My_Custom_Shipping_Method extends WC_Shipping_Method {
+
+            public function __construct( $instance_id = 0 ) {
+
+                $this->id                 = 'my_custom_shipping'; // Уникальный ID
+                $this->method_title       = 'Моя доставка'; // Название в админке
+                $this->method_description = 'Описание вашего способа доставки';
+                $this->instance_id        = $instance_id;
+                
+                $this->init();
+                $this->enabled = $this->get_option( 'enabled' );
+                $this->title   = $this->get_option( 'title' );
+            }
+
+            public function init() {
+
+                // Инициализация настроек
+                $this->init_form_fields();
+                $this->init_settings();
+
+                // Сохранение настроек
+                add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
+            }
+
+            public function init_form_fields() {
+
+                $this->form_fields = array(
+                    'enabled' => array(
+                        'title'   => 'Включить',
+                        'type'    => 'checkbox',
+                        'label'   => 'Включить этот способ доставки',
+                        'default' => 'yes'
+                    ),
+                    'title' => array(
+                        'title'       => 'Название',
+                        'type'        => 'text',
+                        'description' => 'Название для покупателя',
+                        'default'     => 'Моя доставка'
+                    ),
+                );
+            }
+
+            public function calculate_shipping( $package = array() ) {
+
+                // Логика расчета стоимости
+                $cost = 150; // Пример фиксированной цены
+                
+                $this->add_rate( array(
+                    'id'    => $this->id,
+                    'label' => $this->title,
+                    'cost'  => $cost,
+                    'calc_tax' => 'per_item'
+                ) );
+            }
+        }
+    }
+}
+
 
 ?>
