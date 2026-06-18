@@ -3,7 +3,7 @@
 namespace NpAgbShippingMethod;
 
 
-function create_db_tables(string $tabName){
+function create_db_tables(string $tabName):bool{
 
     global $wpdb;
 
@@ -25,7 +25,7 @@ function create_db_tables(string $tabName){
     return true;
 }
 
-function trsltCommonJs(){
+function trsltCommonJs():void{
 
     echo '
     <script>
@@ -41,7 +41,7 @@ function trsltCommonJs(){
 
 
 
-function reroutingOnRightLink_plg(){
+function rightWebProtocol():string{
 
     $protocol = (strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https') ? 'https' : 'http';
 

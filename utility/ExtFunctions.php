@@ -4,7 +4,7 @@ namespace NpAgbShippingMethod;
 
 class ExtFunctions{
 
-    public static function getPostOrProductLangRelation(int $post_id = 0){
+    public static function getPostOrProductLangRelation(int $post_id = 0):bool|array|object{
 
         if($post_id < 1) return false;
     
