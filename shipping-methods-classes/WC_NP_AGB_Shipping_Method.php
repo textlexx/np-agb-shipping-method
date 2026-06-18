@@ -37,7 +37,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
 
         // Actions.
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
-        add_action( 'admin_footer', array( 'WC_Shipping_Free_Shipping', 'enqueue_admin_js' ), 10 ); // Priority needs to be higher than wc_print_js (25).
+        add_action( 'admin_footer', array( 'NpAgbShippingMethod\WC_NP_AGB_Shipping_Method', 'enqueue_admin_js' ), 10 ); // Priority needs to be higher than wc_print_js (25).
     }
 
     /**
