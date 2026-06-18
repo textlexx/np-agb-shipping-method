@@ -5,9 +5,9 @@ namespace NpAgbShippingMethod;
 class TranslatorCenter{
 
     public static $dirOfLang = 'languages';
-    public static $oneCicleWorkPHPScript_agb = 0;
+    public static $oneCicleWorkPHPScript = 0;
 
-    public static function run($original){
+    public static function run(string $original):string{
 
         if(!is_dir(__DIR__.'/../'.TranslatorCenter::$dirOfLang)){
 
@@ -19,6 +19,7 @@ class TranslatorCenter{
         $emptyFile = true;
         $files = array();
         $files = glob(__DIR__.'/../'.TranslatorCenter::$dirOfLang.'/*'.$locale.'*.agb', GLOB_BRACE);
+        $optimizeFile = '';
 
         //------------------------------------
         $original2 = preg_quote($original);
@@ -27,23 +28,22 @@ class TranslatorCenter{
 
         foreach($files as $e){
 
+            clearstatcache();
             if(!is_file($e)) continue;
 
             $dictionary = file_get_contents($e);
-            // Esli ne pystoj fail to ystanovit false
-            if(!ControlCenter::empty($dictionary)) $emptyFile = false;
-            else $emptyFile = true;
-            //--------------------------------------------------
-            // sozdanie imeni faila optimizirovanogo perevoda dlya reg vurazhenij 
-            // chtobu na kazhduj perevod ne nagryzhat script pri poiske v ishodnom 
-            // faile perevoda ".agb"
+            // If not empty file, set false
+            $emptyFile = (!ControlCenter::empty($dictionary)) ? false : true;
+            //--------------------------------------------------            
+            // Optimized file
             $optimizeFile = preg_replace('#\.agb#', '.optimize', $e);
             //--------------------------------------------------
             
-            // esli cukl scripta tolko zapystilsa to sozdat fail optimizacii perevoda
-            if(!TranslatorCenter::$oneCicleWorkPHPScript_agb && !$emptyFile) {
+            // Creat optimization file only if in first passage of cicle
+            // by remeber in property "TranslatorCenter::$oneCicleWorkPHPScript"
+            if(!TranslatorCenter::$oneCicleWorkPHPScript && !$emptyFile) {
 
-                TranslatorCenter::$oneCicleWorkPHPScript_agb = 1;
+                TranslatorCenter::$oneCicleWorkPHPScript = 1;
 
                 $dictionary2 = preg_replace('#[\t\r\n ]+#', ' ', $dictionary);
 
@@ -54,10 +54,7 @@ class TranslatorCenter{
                 fclose($fp);
             }else{
 
-                // esli cukl scripta yzhe v rabote i eshche ne zakonchilsa to ispolzovat 
-                // ranee sozdannuj fail optimizacii perevodov chto bu ne nagryzhat zamenamu probelov
-                // kotoroje delaet reg vurazhenie s bolshim kolichestvom strok a yzhe polychit gotovuj 
-                // format dlya poiska iz faila optimizacii
+                // Use optimized file instead double work
                 if(is_file($optimizeFile)){
 
                     $dictionary2 = file_get_contents($optimizeFile);
@@ -67,6 +64,7 @@ class TranslatorCenter{
                 }
             }
 
+            // For search matches
             if(preg_match("#(\[[\t\r\n ]*key[\t\r\n ]*\][\t\r\n ]*=[\t\r\n ]*\[".$original2."\])([\t\r\n ]*\[[\t\r\n ]*val[\t\r\n ]*\][\t\r\n ]*=[\t\r\n ]*\[([^\]]*)\][\t\r\n ]*\[[\t\r\n ]*end[\t\r\n ]*\])#m", $dictionary2, $finded)){
                 
                 $original = (!preg_match('#^[\t\r\n ]*$#m', $finded[3])) ? $finded[3] : $original;
@@ -76,6 +74,7 @@ class TranslatorCenter{
             }
         }
 
+        clearstatcache();
         $trsl_file = realpath(__DIR__.'/../'.TranslatorCenter::$dirOfLang);
         $trsl_file = $trsl_file.'/'.$locale.'.agb';
 
@@ -93,6 +92,7 @@ class TranslatorCenter{
             "[val]=[]\r\n".
             "[end]\r\n\r\n";
             
+            clearstatcache();
             if(!is_file($trsl_file)){
 
                 file_put_contents($trsl_file, $new_string);
@@ -102,13 +102,18 @@ class TranslatorCenter{
                 file_put_contents($trsl_file, $new_string, LOCK_EX);
             }
 
-            $new_string = preg_replace('#[\t\r\n ]+#', ' ', $new_string);
+            clearstatcache();
+            if( is_file($optimizeFile) ){
 
-            $fp = fopen($optimizeFile, "w+");
-            flock($fp, LOCK_EX);
-            fwrite($fp, $new_string);
-            flock($fp, LOCK_UN);
-            fclose($fp);
+                $new_string = preg_replace('#[\t\r\n ]+#', ' ', $new_string);
+
+                clearstatcache();
+                $fp = fopen($optimizeFile, "w+");
+                flock($fp, LOCK_EX);
+                fwrite($fp, $new_string);
+                flock($fp, LOCK_UN);
+                fclose($fp);
+            }
         }
 
         return $original;
