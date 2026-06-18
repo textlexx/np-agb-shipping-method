@@ -60,7 +60,12 @@ class NPShippingMethod {
 			// If user do not has access
 			if(!current_user_can('manage_options')) {
 
-				add_settings_error( '', '', TranslatorCenter::run('You do not have access to this functions.'), 'error' );			
+				add_settings_error( 
+					'', '', 
+					TranslatorCenter::run('You do not have access to this functions.'), 
+					'error' 
+				);
+
 				return false;
 			}
 
@@ -76,18 +81,10 @@ class NPShippingMethod {
 	public static function plugin_in_menu():void{
 
 		add_menu_page(
-			'Products filters AGB System', 
-			'Products filters AGB', 
+			'Nova Poshta Shipping Method', 
+			'Nova Poshta ShipMet', 
 			'manage_options', // user capability to plugin in menu 
-			'products_filters_plugin_base_page_agb',
-			NPShippingMethod::$default_page
-		);
-
-		add_menu_page(
-			TranslatorCenter::run('Clean Cache AGB'), 
-			TranslatorCenter::run('Clean Cache AGB'), 
-			'manage_options', // user capability to plugin in menu 
-			'clean_cache_products_filters_plugin_base_page_agb',
+			'base_page_np_agb_ship_met',
 			NPShippingMethod::$default_page
 		);
 	}
@@ -96,12 +93,12 @@ class NPShippingMethod {
 
 	// Add submenu in main menu of plugin
 	public static function addSubMenus(
-		$parentSlugName = 'standart_parent_menu_slug', 
-		$pageTitle = 'Standart page title', 
-		$menuTitle = 'Menu title', 
-		$capability = 'manage_options',
-		$menuSlug = 'standart_sub_menu_slug',
-		$function = array('SubMenuCenter', 'standartPage')
+		string $parentSlugName = 'standart_parent_menu_slug', 
+		string $pageTitle = 'Standart page title', 
+		string $menuTitle = 'Menu title', 
+		string $capability = 'manage_options',
+		string $menuSlug = 'standart_sub_menu_slug',
+		array  $function = array('SubMenuCenter', 'standartPage')
 	):void{
 
 		add_submenu_page(
