@@ -6,7 +6,7 @@ class FileEditor{
 
     //-----------------------------------------------------------------------
 
-    public static function save(string $fileParh, string $data){
+    public static function save(string $fileParh, string $data):bool{
 
         clearstatcache();
         $fileParh = realpath($_SERVER['DOCUMENT_ROOT'].'/'.$fileParh);
