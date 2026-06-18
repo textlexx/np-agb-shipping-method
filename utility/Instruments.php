@@ -4,7 +4,7 @@ namespace NpAgbShippingMethod;
 
 class Instruments{
 
-    public static function getTermLangRelation(int $term_id = 0, bool|string $lang = false){
+    public static function getTermLangRelation(int $term_id = 0, bool|string $lang = false):bool|array{
 
         if($term_id < 1) return false;
     
@@ -37,7 +37,7 @@ class Instruments{
 
     //-----------------------------------------------------------------------
 
-    public static function get_term_by_id_simple(int $term_id = 0){
+    public static function get_term_by_id_simple(int $term_id = 0):bool|array{
 
         if($term_id < 1) return false;
     
@@ -60,7 +60,7 @@ class Instruments{
 
     //-----------------------------------------------------------------------
 
-    public static function get_terms_by_ids(string $str_terms_ids){
+    public static function get_terms_by_ids(string $str_terms_ids):bool|array{
 
         global $wpdb;
     
@@ -84,7 +84,7 @@ class Instruments{
     //-----------------------------------------------------------------------
 
     // Make category as translated
-    public static function terms_with_right_lang(bool|string $terms_lang, array $terms_data){
+    public static function terms_with_right_lang(bool|string $terms_lang, array $terms_data):array{
 
         $new_terms_arr = array();
         $no_finded_any_elements = true;
@@ -138,9 +138,10 @@ class Instruments{
 
     //-----------------------------------------------------------------------
 
-    public static function genNextId(string $table_name, string $id_name = 'id', bool $noPrefix = false){
+    public static function genNextId(string $table_name, string $id_name = 'id', bool $noPrefix = false):int{
     
         global $wpdb;
+
         if(
             !preg_match('#^'.$wpdb->prefix.'#', $table_name) && 
             !$noPrefix
