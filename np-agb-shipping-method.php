@@ -4,8 +4,6 @@ namespace NpAgbShippingMethod;
 
 session_start();
 
-define('LANG_THEME_KEY_AGB', 'agb-33da');
-
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 
@@ -21,7 +19,7 @@ Author URI: https://33da.top
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 
-define('PLUGIN_DIR_NAME_NP_S_MT', 'agb-products-filters');
+define('PLUGIN_DIR_NAME_NP_S_MT', 'np-agb-shipping-method');
 define('PLUGIN_URL_DIR_NP_S_MT', plugins_url());
 define('URL_DIR_CURRENT_PLG_NP_S_MT', PLUGIN_URL_DIR_NP_S_MT.'/'.PLUGIN_DIR_NAME_NP_S_MT);
 define('PATH_CURRENT_PLG_NP_S_MT', $_SERVER['DOCUMENT_ROOT'].'/wp-content/plugins/'.PLUGIN_DIR_NAME_NP_S_MT);
@@ -42,7 +40,7 @@ class NPShippingMethod {
 	public static $default_page = array(__CLASS__, 'show_page');
 
     // After plugin activated started show it in menu
-	public static function run(){
+	public static function run():void{
 		
 		// Add plugin in admin panel menu
         add_action('admin_menu', NPShippingMethod::$default_menu);
@@ -75,7 +73,7 @@ class NPShippingMethod {
     //-----------------------------------------------------------------------
 
     // Add plugin link in menu
-	public static function plugin_in_menu(){
+	public static function plugin_in_menu():void{
 
 		add_menu_page(
 			'Products filters AGB System', 
@@ -104,7 +102,7 @@ class NPShippingMethod {
 		$capability = 'manage_options',
 		$menuSlug = 'standart_sub_menu_slug',
 		$function = array('SubMenuCenter', 'standartPage')
-	){
+	):void{
 
 		add_submenu_page(
 			$parentSlugName, 
@@ -119,16 +117,17 @@ class NPShippingMethod {
 	//-----------------------------------------------------------------------
     
 	// Require separate plugin page
-	public static function show_page(){
+	public static function show_page(): ?bool{
 		
 		if(!NPShippingMethod::standartAccessMessageForPages()) return false;
 		
 		require_once (NPShippingMethod::$base_page);
+		return null;
 	}
 	
 	//-----------------------------------------------------------------------
 
-	public static function standartAccessMessageForPages(){
+	public static function standartAccessMessageForPages():bool{
 
 		echo '<h1>'.get_admin_page_title().'</h1>';
 		
