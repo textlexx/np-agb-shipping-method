@@ -45,8 +45,8 @@ class NPShippingMethod {
         // Include actions
 		ActionCenter::trsltCommonJs();
 		ActionCenter::create_tables();
-		ActionCenter::init_my_custom_shipping_method();
-		ActionCenter::add_my_custom_shipping_method();
+		ActionCenter::init_shipping_methods_classes();
+		ActionCenter::add_agb_shipping_methods();
         //----------------------------
 
 		// Include filters
