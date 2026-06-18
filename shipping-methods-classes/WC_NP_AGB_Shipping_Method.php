@@ -26,7 +26,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @return void
      */
     public function __construct( $instance_id = 0 ) {
-        $this->id                 = 'np_agb_method'; // ID for your shipping method. Should be unique.
+        $this->id                 = 'NP_AGB_method'; // ID for your shipping method. Should be unique.
         $this->instance_id        = absint( $instance_id );
         $this->method_title       = TranslatorCenter::run('Nova Poshta');  // Title shown in admin.
         $this->method_description = TranslatorCenter::run('Shipping by nova poshta of Ukraine'); // Description shown in admin.
