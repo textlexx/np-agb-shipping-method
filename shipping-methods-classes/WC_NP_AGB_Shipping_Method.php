@@ -26,6 +26,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @return void
      */
     public function __construct( $instance_id = 0 ) {
+
         $this->id                 = 'NP_AGB_method'; // ID for your shipping method. Should be unique.
         $this->instance_id        = absint( $instance_id );
         $this->method_title       = TranslatorCenter::run('Nova Poshta');  // Title shown in admin.
@@ -47,6 +48,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @return void
      */
     public function init() {
+
         // Save settings in admin if any have been defined. (using Shipping/Settings API)
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
 
@@ -67,6 +69,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @param array $package Package of items from cart.
      */
     public function calculate_shipping( $package = array() ) {
+
         // Get the rate set for this instance.
         $rate = array(
             'id'      => $this->get_rate_id(), // Get the instance rate ID from the Shipping API.
@@ -81,6 +84,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
 
         // If a cost has been set, then we evaluate the cost to make sure it is valid.
         if ( '' !== $cost ) {
+
             $has_costs    = true;
             $rate['cost'] = $cost;
         }
@@ -114,19 +118,23 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
                  * Here we check that setting so we can apply the costs accordingly.
                  */
                 if ( 'class' === $this->type ) {
+
                     $rate['cost'] += $class_cost;
                 } else {
+
                     $highest_class_cost = $class_cost > $highest_class_cost ? $class_cost : $highest_class_cost;
                 }
             }
 
             // If the cost is per order, then we apply the highest class cost to the base cost.
             if ( 'order' === $this->type && $highest_class_cost ) {
+
                 $rate['cost'] += $highest_class_cost;
             }
         }
 
         if ( $has_costs ) {
+            
             $this->add_rate( $rate );
         }
 
