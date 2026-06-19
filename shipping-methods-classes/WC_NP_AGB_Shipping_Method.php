@@ -87,13 +87,16 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
 
         // Flat rate shipping has the ability to set a cost per shipping class, so here we get the shipping classes and add those costs, as well.
         $shipping_classes = WC()->shipping()->get_shipping_classes();
+
         if ( ! empty( $shipping_classes ) ) {
+
             // Check to see if there are shipping classes assigned to the products in the package/cart.
             $found_shipping_classes = $this->find_shipping_classes( $package );
             $highest_class_cost     = 0;
 
             // If shipping classes are found to be assigned to the products, then we go through each shipping class.
             foreach ( $found_shipping_classes as $shipping_class => $products ) {
+
                 // Also handles backwards compatibility when slugs were used instead of ids.
                 $shipping_class_term = get_term_by( 'slug', $shipping_class, 'product_shipping_class' );
                 $class_cost   = $shipping_class_term && $shipping_class_term->term_id ? $this->get_option( 'class_cost_' . $shipping_class_term->term_id, $this->get_option( 'class_cost_' . $shipping_class, '' ) ) : $this->get_option( 'no_class_cost', '' );
@@ -143,13 +146,17 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @return array
      */
     public function find_shipping_classes( $package ) {
+
         $found_shipping_classes = array();
 
         foreach ( $package['contents'] as $item_id => $values ) {
+
             if ( $values['data']->needs_shipping() ) {
+
                 $found_class = $values['data']->get_shipping_class();
 
                 if ( ! isset( $found_shipping_classes[ $found_class ] ) ) {
+
                     $found_shipping_classes[ $found_class ] = array();
                 }
 
@@ -169,6 +176,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @throws Exception If the cost is not numeric.
      */
     public function sanitize_cost( $value ) {
+
         // If the value is null, then set it to zero. Run the value through WordPress core sanitization functions, the remove the currency symbol, if present.
         $value = is_null( $value ) ? '0' : $value;
         $value = wp_kses_post( trim( wp_unslash( $value ) ) );
@@ -185,8 +193,10 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
 
         // If the value is not numeric, then throw an exception.
         if ( ! is_numeric( $value ) ) {
+
             throw new Exception( 'Invalid cost entered.' );
         }
+
         return $value;
     }
 
@@ -196,31 +206,32 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @return void
      */
     public function init_form_fields() {
+        
         // Set the form_fields property to an array that will be able to be used by the Settings API to show the fields on the page.
         $this->form_fields = array(
             'title'      => array(
-                'title'       => __( 'Name', 'your_text_domain' ),
+                'title'       => TranslatorCenter::run( 'Name of shipping method' ),
                 'type'        => 'text',
-                'description' => __( 'Your customers will see the name of this shipping method during checkout.', 'your_text_domain' ),
-                'default'     => __( 'Your shipping method', 'your_text_domain' ),
-                'placeholder' => __( 'e.g. Standard national', 'your_text_domain' ),
+                'description' => TranslatorCenter::run( 'Your customers will see the name of this shipping method during checkout.' ),
+                'default'     => TranslatorCenter::run( 'Nova Poshta' ),
+                'placeholder' => TranslatorCenter::run( 'Nova Poshta' ),
                 'desc_tip'    => true, // Include this if you would like your description to show as a tooltip.
             ),
             'tax_status' => array(
-                'title'   => __( 'Tax status', 'your_text_domain' ),
+                'title'   => TranslatorCenter::run( 'Tax status' ),
                 'type'    => 'select',
                 'class'   => 'wc-enhanced-select',
                 'default' => 'taxable',
                 'options' => array(
-                    'taxable' => __( 'Taxable', 'your_text_domain' ),
-                    'none'    => _x( 'None', 'Tax status', 'your_text_domain' ),
+                    'taxable' => TranslatorCenter::run( 'Taxable' ),
+                    'none'    => TranslatorCenter::run( 'Without tax' ),
                 ),
             ),
             'cost'       => array(
-                'title'             => __( 'Cost', 'your_text_domain' ),
+                'title'             => TranslatorCenter::run( 'Cost' ),
                 'type'              => 'text',
                 'placeholder'       => '',
-                'description'       => __( 'Enter a cost (excl. tax).', 'your_text_domain' ),
+                'description'       => TranslatorCenter::run( 'Enter a cost (excluded tax).' ),
                 'default'           => '0',
                 'desc_tip'          => true,
                 'sanitize_callback' => array( $this, 'sanitize_cost' ),
@@ -234,32 +245,33 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @return void
      */
     private function init_instance_form_fields() {
+
         // Define some strings that will be used several times for the cost description and link.
-        $cost_desc = __( 'Enter a cost (excl. tax).', 'your_text_domain' );
-        $cost_link = sprintf( '<span id="wc-shipping-advanced-costs-help-text">%s <a target="_blank" href="https://woocommerce.com/document/flat-rate-shipping/#advanced-costs">%s</a>.</span>', __( 'Charge a flat rate per item, or enter a cost formula to charge a percentage based cost or a minimum fee. Learn more about', 'your_text_domain' ), __( 'advanced costs', 'your_text_domain' ) );
+        $cost_desc = TranslatorCenter::run( 'Enter a cost (excluded tax).' );
+        $cost_link = sprintf( '<span id="wc-shipping-advanced-costs-help-text">%s <a target="_blank" href="https://woocommerce.com/document/flat-rate-shipping/#advanced-costs">%s</a>.</span>', TranslatorCenter::run( 'Charge a flat rate per item, or enter a cost formula to charge a percentage based cost or a minimum fee. Learn more about' ), TranslatorCenter::run( 'advanced costs' ) );
 
         // Start the array of fields.
         $fields = array(
             'title'      => array(
-                'title'       => __( 'Name', 'your_text_domain' ),
+                'title'       => TranslatorCenter::run( 'Name of shipping method' ),
                 'type'        => 'text',
-                'description' => __( 'Your customers will see the name of this shipping method during checkout.', 'your_text_domain' ),
-                'default'     => __( 'Your shipping method', 'your_text_domain' ),
-                'placeholder' => __( 'e.g. Standard national', 'your_text_domain' ),
+                'description' => TranslatorCenter::run( 'Your customers will see the name of this shipping method during checkout.' ),
+                'default'     => TranslatorCenter::run( 'Nova Poshta' ),
+                'placeholder' => TranslatorCenter::run( 'Nova Poshta' ),
                 'desc_tip'    => true,
             ),
             'tax_status' => array(
-                'title'   => __( 'Tax status', 'your_text_domain' ),
+                'title'   => TranslatorCenter::run( 'Tax status' ),
                 'type'    => 'select',
                 'class'   => 'wc-enhanced-select',
                 'default' => 'taxable',
                 'options' => array(
-                    'taxable' => __( 'Taxable', 'your_text_domain' ),
-                    'none'    => _x( 'None', 'Tax status', 'your_text_domain' ),
+                    'taxable' => TranslatorCenter::run( 'Taxable' ),
+                    'none'    => TranslatorCenter::run( 'Without tax' ),
                 ),
             ),
             'cost'       => array(
-                'title'             => __( 'Cost', 'your_text_domain' ),
+                'title'             => TranslatorCenter::run( 'Cost' ),
                 'type'              => 'text',
                 'class'             => 'wc-shipping-modal-price',
                 'placeholder'       => '',
@@ -277,23 +289,28 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
         $shipping_classes = WC()->shipping()->get_shipping_classes();
 
         if ( ! empty( $shipping_classes ) ) {
+
             $fields['class_costs'] = array(
-                'title'       => __( 'Shipping class costs', 'your_text_domain' ),
+                'title'       => TranslatorCenter::run( 'Shipping class costs' ),
                 'type'        => 'title',
                 'default'     => '',
                 /* translators: %s: URL for link */
-                'description' => sprintf( __( 'These costs can optionally be added based on the <a target="_blank" href="%s">product shipping class</a>. Learn more about <a target="_blank" href="https://woocommerce.com/document/flat-rate-shipping/#shipping-classes">setting shipping class costs</a>.', 'your_text_domain' ), admin_url( 'admin.php?page=wc-settings&tab=shipping&section=classes' ) ),
+                'description' => sprintf( TranslatorCenter::run( 'These costs can optionally be added based on the <a target="_blank" href="%s">product shipping class</a>. Learn more about <a target="_blank" href="https://woocommerce.com/document/flat-rate-shipping/#shipping-classes">setting shipping class costs</a>.' ), admin_url( 'admin.php?page=wc-settings&tab=shipping&section=classes' ) ),
             );
+
             foreach ( $shipping_classes as $shipping_class ) {
+
                 if ( ! isset( $shipping_class->term_id ) ) {
+
                     continue;
                 }
+
                 $fields[ 'class_cost_' . $shipping_class->term_id ] = array(
                     /* translators: %s: shipping class name */
-                    'title'             => sprintf( __( '"%s" shipping class cost', 'your_text_domain' ), esc_html( $shipping_class->name ) ),
+                    'title'             => sprintf( TranslatorCenter::run( '"%s" shipping class cost'), esc_html( $shipping_class->name ) ),
                     'type'              => 'text',
                     'class'             => 'wc-shipping-modal-price',
-                    'placeholder'       => __( 'N/A', 'your_text_domain' ),
+                    'placeholder'       => TranslatorCenter::run( 'N/A' ),
                     'description'       => $cost_desc,
                     'default'           => $this->get_option( 'class_cost_' . $shipping_class->slug ),
                     'desc_tip'          => true,
@@ -302,10 +319,10 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
             }
 
             $fields['no_class_cost'] = array(
-                'title'             => __( 'No shipping class cost', 'your_text_domain' ),
+                'title'             => TranslatorCenter::run( 'No shipping class cost' ),
                 'type'              => 'text',
                 'class'             => 'wc-shipping-modal-price',
-                'placeholder'       => __( 'N/A', 'your_text_domain' ),
+                'placeholder'       => TranslatorCenter::run( 'N/A' ),
                 'description'       => $cost_desc,
                 'default'           => '',
                 'desc_tip'          => true,
@@ -313,13 +330,13 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
             );
 
             $fields['type'] = array(
-                'title'       => __( 'Calculation type', 'your_text_domain' ),
+                'title'       => TranslatorCenter::run( 'Calculation type' ),
                 'type'        => 'select',
                 'class'       => 'wc-enhanced-select',
                 'default'     => 'class',
                 'options'     => array(
-                    'class' => __( 'Per class: Charge shipping for each shipping class individually', 'your_text_domain' ),
-                    'order' => __( 'Per order: Charge shipping for the most expensive shipping class', 'your_text_domain' ),
+                    'class' => TranslatorCenter::run( 'Per class: Charge shipping for each shipping class individually' ),
+                    'order' => TranslatorCenter::run( 'Per order: Charge shipping for the most expensive shipping class' ),
                 ),
                 'description' => $cost_link,
             );
