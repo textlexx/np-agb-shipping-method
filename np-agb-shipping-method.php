@@ -46,11 +46,10 @@ class NPShippingMethod {
 		ActionCenter::trsltCommonJs();
 		ActionCenter::create_tables();
 		ActionCenter::init_shipping_methods_classes();
-		ActionCenter::add_agb_shipping_methods();
         //----------------------------
 
 		// Include filters
-		//FiltersFunctions::example();
+		FiltersFunctions::add_agb_shipping_methods();
 		//----------------------------
 
 		// admin_notices - action add opportunity show errors and successes messages

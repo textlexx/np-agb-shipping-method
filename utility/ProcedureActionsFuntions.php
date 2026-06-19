@@ -62,7 +62,9 @@ function add_agb_shipping_methods( array $methods ):array{
     
     if(class_exists( 'NpAgbShippingMethod\WC_NP_AGB_Shipping_Method' )){
 
-        $methods['agb_method'] = 'NpAgbShippingMethod\WC_NP_AGB_Shipping_Method';
+        // This key name: "NP_AGB_method'" must be match with id name in 
+        // class property "WC_NP_AGB_Shipping_Method->id"
+        $methods['NP_AGB_method'] = 'NpAgbShippingMethod\WC_NP_AGB_Shipping_Method';
     }
 
     return $methods;

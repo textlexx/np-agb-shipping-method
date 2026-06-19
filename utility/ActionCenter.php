@@ -33,14 +33,7 @@ class ActionCenter{
 
     public static function init_shipping_methods_classes():void{
 
-        add_action( 'plugins_loaded', 'NpAgbShippingMethod\init_shipping_methods_classes' );
-    }
-
-    //-----------------------------------------------------------------------
-
-    public static function add_agb_shipping_methods():void{
-
-        add_action( 'woocommerce_shipping_methods', 'NpAgbShippingMethod\add_agb_shipping_methods' );
+        add_action( 'woocommerce_shipping_init', 'NpAgbShippingMethod\init_shipping_methods_classes' );
     }
 
     //-----------------------------------------------------------------------
