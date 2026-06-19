@@ -25,7 +25,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @param  int  $instance_id Shipping method instance ID. A new instance ID is assigned per instance created in a shipping zone.
      * @return void
      */
-    public function __construct( int $instance_id = 0 ) {
+    public function __construct( $instance_id = 0 ) {
 
         $this->id                 = 'NP_AGB_method'; // ID for your shipping method. Should be unique.
         $this->instance_id        = absint( $instance_id );
@@ -47,7 +47,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      *
      * @return void
      */
-    public function init():void {
+    public function init() {
 
         // Save settings in admin if any have been defined. (using Shipping/Settings API)
         add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
@@ -68,7 +68,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      *
      * @param array $package Package of items from cart.
      */
-    public function calculate_shipping( array $package = array() ):void {
+    public function calculate_shipping( $package = array() ) {
 
         // Get the rate set for this instance.
         $rate = array(
@@ -153,7 +153,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @param mixed $package Package of items from cart.
      * @return array
      */
-    public function find_shipping_classes( mixed $package ):array {
+    public function find_shipping_classes( $package ) {
 
         $found_shipping_classes = array();
 
@@ -183,7 +183,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      * @return string
      * @throws Exception If the cost is not numeric.
      */
-    public function sanitize_cost( string $value ):string {
+    public function sanitize_cost( $value ) {
 
         // If the value is null, then set it to zero. Run the value through WordPress core sanitization functions, the remove the currency symbol, if present.
         $value = is_null( $value ) ? '0' : $value;
@@ -213,7 +213,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      *
      * @return void
      */
-    public function init_form_fields():void {
+    public function init_form_fields() {
         
         // Set the form_fields property to an array that will be able to be used by the Settings API to show the fields on the page.
         $this->form_fields = array(
@@ -252,7 +252,7 @@ class WC_NP_AGB_Shipping_Method extends WC_Shipping_Method {
      *
      * @return void
      */
-    private function init_instance_form_fields():void {
+    private function init_instance_form_fields() {
 
         // Define some strings that will be used several times for the cost description and link.
         $cost_desc = TranslatorCenter::run( 'Enter a cost (excluded tax).' );
