@@ -79,7 +79,7 @@ class NPShippingMethod {
 	public static function plugin_in_menu():void{
 
 		add_menu_page(
-			'Nova Poshta Shipping Method', 
+			TranslatorCenter::run('Nova Poshta Shipping Method'), 
 			'Nova Poshta ShipMet', 
 			'manage_options', // user capability to plugin in menu 
 			'base_page_np_agb_ship_met',
