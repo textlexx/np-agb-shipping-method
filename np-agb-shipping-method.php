@@ -44,7 +44,7 @@ class NPShippingMethod {
         
         // Include actions
 		ActionCenter::trsltCommonJs();
-		ActionCenter::create_tables();
+		//ActionCenter::create_tables();
 		ActionCenter::init_shipping_methods_classes();
         //----------------------------
 

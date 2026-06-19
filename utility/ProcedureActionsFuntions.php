@@ -3,7 +3,7 @@
 namespace NpAgbShippingMethod;
 
 
-function create_db_tables(string $tabName):bool{
+function create_db_tables(string $tabName = 'np_agb_shipping_method'):bool{
 
     global $wpdb;
 
